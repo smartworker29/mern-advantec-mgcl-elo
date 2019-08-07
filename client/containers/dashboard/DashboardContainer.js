@@ -1,10 +1,12 @@
 import React, {Component} from 'react';
 import GoogleMap from 'google-map-react';
 import Grid from '@material-ui/core/Grid';
-
+import * as _ from 'lodash';
 import ReactTable from 'react-table';
 import 'react-table/react-table.css';
 
+import stateOptions from '../../utils/us-states';
+import counties from '../../utils/counties.json';
 import './dashboard.css';
 class DashboardContainer extends Component {
 
@@ -21,12 +23,31 @@ class DashboardContainer extends Component {
                 range: undefined,
                 keyword: undefined
             },
-            docsList: []
+            selectedState: undefined,
+            docsList: [],
+            countyOptions: []
         };
     }
 
+    componentDidMount() {
+        const countyOptions = _.flatMap(counties);
+        console.log('p------------- countyOptions:', countyOptions);
+        this.setState({ countyOptions });
+    }
+
+    onStateChange = (e) => {
+        console.log('======= e state change', e.target.value);
+        const selectedState = e.target.value;
+        const countyOptions = counties[selectedState];
+        this.setState({ selectedState, countyOptions });
+    }
+
+    onFilterChange = (e) => {
+        console.log('---------- filter change:', e.target.value);
+    }
+
     render() {
-        const { documentDetails, filters, docsList } = this.state;
+        const { documentDetails, filters, docsList, countyOptions, selectedState } = this.state;
         
         return (
             <div className="homepage-container">
@@ -38,11 +59,28 @@ class DashboardContainer extends Component {
                         <h2>Search & Filter</h2>
                         <Grid container>
                             <Grid item xs={6}><span>State</span></Grid>
-                            <Grid item xs={6}><input name="state" value={filters.state} onChange={this.onFilterChange} /></Grid>
+                            <Grid item xs={6}>
+                                <select name="state" value={selectedState} onChange={this.onStateChange}>
+                                    {stateOptions.map(option =>
+                                        <option key={option.abbreviation} value={option.abbreviation}>{option.name}</option>
+                                    )}
+                                </select>
+                            </Grid>
                             <Grid item xs={6}><span>County</span></Grid>
-                            <Grid item xs={6}><input name="county" value={filters.county} onChange={this.onFilterChange} /></Grid>
+                            <Grid item xs={6}>
+                                <select name="county" value={filters.county} onChange={this.onFilterChange}>
+                                    {countyOptions.map((option, index) =>
+                                        <option key={index} value={option}>{option}</option>
+                                    )}
+                                </select>
+                            </Grid>
                             <Grid item xs={6}><span>Meridian</span></Grid>
-                            <Grid item xs={6}><input name="meridian" value={filters.meridian} onChange={this.onFilterChange} /></Grid>
+                            <Grid item xs={6}>
+                                <select name="meridian" value={filters.meridian} onChange={this.onFilterChange}>
+                                    <option value={'Indian'}>Indian</option>
+                                    <option value={'Cimarron'}>Cimarron</option>
+                                </select>
+                            </Grid>
                             <Grid item xs={6}><span>Section</span></Grid>
                             <Grid item xs={6}><input name="section" value={filters.section} onChange={this.onFilterChange} /></Grid>
                             <Grid item xs={6}><span>Township</span></Grid>
