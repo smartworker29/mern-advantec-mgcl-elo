@@ -1,4 +1,62 @@
-.map-container {
-  width: 100%;
-  height: 100vh;
+.homepage-container {
+  background: #5a849a;
+}
+
+.header {
+  height: 60px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+}
+
+.header .logo {
+  font-size: 30px;
+  font-weight: 900;
+  text-transform: uppercase;
+  color: #d22993;
+  letter-spacing: 3px;
+}
+
+#search-filter-section {
+  padding: 10px;
+}
+
+#search-filter-section h2 {
+  font-size: 30px;
+  color: #fff;
+  margin-bottom: 10px;
+  margin-top: 5px;
+}
+
+#search-filter-section input {
+  width: calc(100% - 10px);
+  box-sizing: border-box;
+  padding: 5px 10px;
+  margin: 5px 0;
+}
+
+#search-filter-section span {
+  font-size: 20px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+#search-filter-section table {
+  width: calc(100% - 10px);
+  background: white;
+  font-size: 8px;
+  line-height: 16px;
+}
+
+#search-filter-section table thead tr {
+  background: #c5c5c5;
+}
+
+#search-filter-section #document-details {
+  margin-left: 10px;
+  background: #fff;
+  height: 100%;
 }

@@ -29,29 +29,27 @@ class DashboardContainer extends Component {
         const { documentDetails, filters, docsList } = this.state;
         
         return (
-            <div>
-                <Grid container  style={{ height: 60 }}>
-                    <Grid item xs={12}>
-                        <span>Logo</span>
-                    </Grid>
-                </Grid>
-                <Grid container  style={{ height: 650 }}>
+            <div className="homepage-container">
+                <div className="header">
+                    <span className="logo">Logo</span>
+                </div>
+                <Grid container id="search-filter-section" style={{ height: 650 }}>
                     <Grid item xs={2}>
                         <h2>Search & Filter</h2>
                         <Grid container>
-                            <Grid item xs={6}>State</Grid>
+                            <Grid item xs={6}><span>State</span></Grid>
                             <Grid item xs={6}><input name="state" value={filters.state} onChange={this.onFilterChange} /></Grid>
-                            <Grid item xs={6}>County</Grid>
+                            <Grid item xs={6}><span>County</span></Grid>
                             <Grid item xs={6}><input name="county" value={filters.county} onChange={this.onFilterChange} /></Grid>
-                            <Grid item xs={6}>Meridian</Grid>
+                            <Grid item xs={6}><span>Meridian</span></Grid>
                             <Grid item xs={6}><input name="meridian" value={filters.meridian} onChange={this.onFilterChange} /></Grid>
-                            <Grid item xs={6}>Section</Grid>
+                            <Grid item xs={6}><span>Section</span></Grid>
                             <Grid item xs={6}><input name="section" value={filters.section} onChange={this.onFilterChange} /></Grid>
-                            <Grid item xs={6}>Township</Grid>
+                            <Grid item xs={6}><span>Township</span></Grid>
                             <Grid item xs={6}><input name="township" value={filters.township} onChange={this.onFilterChange} /></Grid>
-                            <Grid item xs={6}>Range</Grid>
+                            <Grid item xs={6}><span>Range</span></Grid>
                             <Grid item xs={6}><input name="range" value={filters.range} onChange={this.onFilterChange} /></Grid>
-                            <Grid item xs={6}>Keyword</Grid>
+                            <Grid item xs={6}><span>Keyword</span></Grid>
                             <Grid item xs={12}><input name="keyword" value={filters.keyword} onChange={this.onFilterChange} /></Grid>
                         </Grid>
                         <table>
@@ -88,7 +86,7 @@ class DashboardContainer extends Component {
                         </div>
                     </Grid>
                 </Grid>
-                <Grid container style={{ height: 400 }}>
+                <Grid container>
                     <Grid item xs={8}>
                         <ReactTable
                             data={docsList}
