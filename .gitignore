@@ -1,5 +1,9 @@
-.vscode
-node_modules
-dist
-*.log
-yarn.lock
+/.idea
+/node_modules
+.env
+/logs
+/dist
+
+
+package-lock.json
+npm-debug.log
