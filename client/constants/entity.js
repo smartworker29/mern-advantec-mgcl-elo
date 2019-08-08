@@ -1,3 +1,3 @@
 export const USERS = 'users';
-export const PRODUCTS = 'products';
+export const DOCS = 'docs';
 export const WELLS = 'wells';

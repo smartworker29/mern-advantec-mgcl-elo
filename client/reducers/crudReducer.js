@@ -9,8 +9,10 @@ import {
 
 let initialState = {
     wells: [],
+    docs: [],
     selectedItem: {
         well: {},
+        doc: {},
     }
 };
 

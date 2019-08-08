@@ -39,6 +39,7 @@ app.use(errorHandler.notFoundErrorHandler);
 app.use(errorHandler.errorHandler);
 
 app.listen(app.get('port'), app.get('host'), () => {
+    // eslint-disable-next-line no-console
     console.log(`Server running at http://${app.get('host')}:${app.get('port')}`);
 });
 

@@ -8,7 +8,7 @@ import 'react-table/react-table.css';
 import {bindActionCreators} from 'redux';
 import {connect} from 'react-redux';
 
-import { WELLS } from '../../constants/entity';
+import { WELLS, DOCS } from '../../constants/entity';
 import * as crudAction from '../../actions/crudAction';
 import stateOptions from '../../utils/us-states';
 import counties from '../../utils/counties.json';
@@ -34,29 +34,27 @@ class DashboardContainer extends Component {
         };
 
         props.actions.fetchAll(WELLS);
-
+        props.actions.fetchAll(DOCS);
     }
 
     componentDidMount() {
         const countyOptions = _.flatMap(counties);
-        console.log('p------------- countyOptions:', countyOptions);
         this.setState({ countyOptions });
     }
 
     onStateChange = (e) => {
-        console.log('======= e state change', e.target.value);
         const selectedState = e.target.value;
         const countyOptions = counties[selectedState];
         this.setState({ selectedState, countyOptions });
     }
 
     onFilterChange = (e) => {
+        // eslint-disable-next-line no-console
         console.log('---------- filter change:', e.target.value);
     }
 
     render() {
-        const { documentDetails, filters, docsList, countyOptions, selectedState } = this.state;
-        console.log('------this.props.wells:', this.props.wells);
+        const { documentDetails, filters, countyOptions, selectedState } = this.state;
 
 return (
             <div className="homepage-container">
@@ -151,9 +149,9 @@ return (
                     </Grid>
                 </Grid>
                 <Grid container>
-                    <Grid item xs={8}>
+                    <Grid item xs={8} className="docs-list">
                         <ReactTable
-                            data={docsList}
+                            data={this.props.docs}
                             style={{ margin : 10 }}
                             filterable
                             defaultFilterMethod={(filter, row) =>
@@ -192,16 +190,46 @@ return (
                                             width: 30
                                         },
                                         {
-                                            Header: 'First Name',
-                                            accessor: 'firstName',
+                                            Header: 'ID',
+                                            accessor: 'ID',
                                             filterMethod: (filter, row) =>
                                                 row[filter.id].startsWith(filter.value) &&
                                                 row[filter.id].endsWith(filter.value)
                                             },
                                         {
-                                            Header: 'Last Name',
-                                            id: 'lastName',
-                                            accessor: d => d.lastName,
+                                            Header: 'File Name',
+                                            id: 'FileName',
+                                            accessor: d => d.FileName,
+                                            filterAll: true
+                                        },
+                                        {
+                                            Header: 'Doc Type',
+                                            id: 'DocType',
+                                            accessor: d => d.DocType,
+                                            filterAll: true
+                                        },
+                                        {
+                                            Header: 'Run Date',
+                                            id: 'RunDate',
+                                            accessor: d => d.RunDate,
+                                            filterAll: true
+                                        },
+                                        {
+                                            Header: 'Logger',
+                                            id: 'Logger',
+                                            accessor: d => d.Logger,
+                                            filterAll: true
+                                        },
+                                        {
+                                            Header: 'Well ID',
+                                            id: 'Well_ID',
+                                            accessor: d => d.Well_ID,
+                                            filterAll: true
+                                        },
+                                        {
+                                            Header: 'AddedDate',
+                                            id: 'AddedDate',
+                                            accessor: d => d.AddedDate,
                                             filterAll: true
                                         }
                                     ]
@@ -226,12 +254,14 @@ return (
 
 DashboardContainer.propTypes = {
     actions: PropTypes.object,
-    wells: PropTypes.array
+    wells: PropTypes.array,
+    docs: PropTypes.array
 };
 
 
 const mapStateToProps = state => ({
-    wells: state.crud.wells
+    wells: state.crud.wells,
+    docs: state.crud.docs
 });
 
 /**

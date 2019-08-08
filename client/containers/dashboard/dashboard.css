@@ -117,8 +117,15 @@
 }
 
 /* Docs List Table */
-.docs-list {
-  margin: 10px;
+.docs-list .ReactTable .rt-thead .rt-th, .ReactTable .rt-thead .rt-td {
+  font-size: 10px;
+  vertical-align: middle;
+}
+.docs-list .ReactTable .rt-th, .ReactTable .rt-td {
+  width: calc(14% - 5px) !important;
+}
+.docs-list .ReactTable .-pagination {
+  font-size: 10px;
 }
 
 /* checkoutlist */
@@ -127,3 +134,4 @@
   background: #fff;
   height: calc(100% - 20px);;
 }
+

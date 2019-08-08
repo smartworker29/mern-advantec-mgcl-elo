@@ -2,6 +2,7 @@ import express from 'express';
 import authRoutes from './auth.route';
 import userRoutes from './user.route';
 import wellRoutes from './well.route';
+import docRoutes from './doc.route';
 
 const router = express.Router();
 
@@ -12,5 +13,7 @@ router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
 
 router.use('/wells', wellRoutes);
+
+router.use('/docs', docRoutes);
 
 export default router;
