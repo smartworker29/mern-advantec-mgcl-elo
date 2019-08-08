@@ -10,8 +10,11 @@ export {history};
 
 const middlewares = [thunkMiddleware, logger, routerMiddleware(history)];
 
-const store = createStore(createRootReducer(history), {}, compose(
-    applyMiddleware(...middlewares)
+const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+const store = createStore(createRootReducer(history),
+    {},
+    composeEnhancers(
+        applyMiddleware(...middlewares)
     )
 );
 

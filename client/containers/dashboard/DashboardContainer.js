@@ -1,10 +1,15 @@
 import React, {Component} from 'react';
+import PropTypes from 'prop-types';
 import GoogleMap from 'google-map-react';
 import Grid from '@material-ui/core/Grid';
 import * as _ from 'lodash';
 import ReactTable from 'react-table';
 import 'react-table/react-table.css';
+import {bindActionCreators} from 'redux';
+import {connect} from 'react-redux';
 
+import { WELLS } from '../../constants/entity';
+import * as crudAction from '../../actions/crudAction';
 import stateOptions from '../../utils/us-states';
 import counties from '../../utils/counties.json';
 import './dashboard.css';
@@ -27,6 +32,9 @@ class DashboardContainer extends Component {
             docsList: [],
             countyOptions: []
         };
+
+        props.actions.fetchAll(WELLS);
+
     }
 
     componentDidMount() {
@@ -48,19 +56,21 @@ class DashboardContainer extends Component {
 
     render() {
         const { documentDetails, filters, docsList, countyOptions, selectedState } = this.state;
-        
-        return (
+        console.log('------this.props.wells:', this.props.wells);
+
+return (
             <div className="homepage-container">
                 <div className="header">
                     <span className="logo">Logo</span>
                 </div>
-                <Grid container id="search-filter-section" style={{ height: 650 }}>
+                <Grid container id="search-filter-section">
                     <Grid item xs={2}>
                         <h2>Search & Filter</h2>
-                        <Grid container>
+                        <Grid container className="filters">
                             <Grid item xs={6}><span>State</span></Grid>
                             <Grid item xs={6}>
                                 <select name="state" value={selectedState} onChange={this.onStateChange}>
+                                    <option value={undefined}>&nbsp;</option>
                                     {stateOptions.map(option =>
                                         <option key={option.abbreviation} value={option.abbreviation}>{option.name}</option>
                                     )}
@@ -69,6 +79,7 @@ class DashboardContainer extends Component {
                             <Grid item xs={6}><span>County</span></Grid>
                             <Grid item xs={6}>
                                 <select name="county" value={filters.county} onChange={this.onFilterChange}>
+                                    <option value={undefined}>&nbsp;</option>
                                     {countyOptions.map((option, index) =>
                                         <option key={index} value={option}>{option}</option>
                                     )}
@@ -77,6 +88,7 @@ class DashboardContainer extends Component {
                             <Grid item xs={6}><span>Meridian</span></Grid>
                             <Grid item xs={6}>
                                 <select name="meridian" value={filters.meridian} onChange={this.onFilterChange}>
+                                    <option value={undefined}>&nbsp;</option>
                                     <option value={'Indian'}>Indian</option>
                                     <option value={'Cimarron'}>Cimarron</option>
                                 </select>
@@ -87,29 +99,43 @@ class DashboardContainer extends Component {
                             <Grid item xs={6}><input name="township" value={filters.township} onChange={this.onFilterChange} /></Grid>
                             <Grid item xs={6}><span>Range</span></Grid>
                             <Grid item xs={6}><input name="range" value={filters.range} onChange={this.onFilterChange} /></Grid>
-                            <Grid item xs={6}><span>Keyword</span></Grid>
+                            <Grid item xs={6}><span style={{ margin: '5px 0' }}>Keyword</span></Grid>
                             <Grid item xs={12}><input name="keyword" value={filters.keyword} onChange={this.onFilterChange} /></Grid>
                         </Grid>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>API</th>
-                                    <th>OPERATOR</th>
-                                    <th>SPOT</th>
-                                    <th>ID</th>
-                                    <th>Location</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>API</td>
-                                    <td>OPERATOR</td>
-                                    <td>SPOT</td>
-                                    <td>ID</td>
-                                    <td>Location</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <ReactTable
+                            data={this.props.wells}
+                            previousText={'<<'}
+                            nextText={'>>'}
+                            columns={[
+                                {
+                                    columns: [
+                                        {
+                                            Header: 'API',
+                                            accessor: 'API'
+                                        },
+                                        {
+                                            Header: 'OPERATOR',
+                                            accessor: 'Operator'
+                                        },
+                                        {
+                                            Header: 'SPOT',
+                                            accessor: 'Lease'
+                                        },
+                                        {
+                                            Header: 'ID',
+                                            accessor: 'ID'
+                                        },
+                                        {
+                                            Header: 'Location',
+                                            id: 'location',
+                                            accessor: d => `${d.Section}-${d.Township}-${d.Range}`
+                                        }
+                                    ]
+                                }
+                            ]}
+                            defaultPageSize={20}
+                            className="-striped -highlight"
+                        />
                     </Grid>
                     <Grid item xs={8}>
                         <GoogleMap
@@ -128,12 +154,43 @@ class DashboardContainer extends Component {
                     <Grid item xs={8}>
                         <ReactTable
                             data={docsList}
+                            style={{ margin : 10 }}
                             filterable
                             defaultFilterMethod={(filter, row) =>
                                 String(row[filter.id]) === filter.value}
                             columns={[
-                                {
-                                    columns: [
+                                        {
+                                            id: 'checkbox',
+                                            accessor: '',
+                                            filterable: false,
+                                            Cell: ( rowInfo ) => {
+                                                return (
+                                                    <input
+                                                        type="checkbox"
+                                                        className="checkbox"
+                                                        checked={rowInfo.checked}
+                                                        onChange={() => {}}
+                                                    />
+                                                );
+                                            },
+                                            Header: () => {
+                                                return (
+                                                    <input
+                                                        type="checkbox"
+                                                        className="checkbox"
+                                                        checked={this.state.selectAll === 1}
+                                                        ref={input => {
+                                                            if (input) {
+                                                                input.indeterminate = this.state.selectAll === 2;
+                                                            }
+                                                        }}
+                                                        onChange={() => this.toggleSelectAll()}
+                                                    />
+                                                );
+                                            },
+                                            sortable: false,
+                                            width: 30
+                                        },
                                         {
                                             Header: 'First Name',
                                             accessor: 'firstName',
@@ -149,13 +206,16 @@ class DashboardContainer extends Component {
                                         }
                                     ]
                                 }
-                            ]}
                             defaultPageSize={20}
+                            previousText={'<<'}
+                            nextText={'>>'}
                             className="-striped -highlight"
                         />
                     </Grid>
                     <Grid item xs={4}>
-                        checkoutlist
+                        <div id="checkoutlist">
+                            {/* checkout */}
+                        </div>
                     </Grid>
                 </Grid>
             </div>
@@ -164,4 +224,21 @@ class DashboardContainer extends Component {
 
 }
 
-export default DashboardContainer;
+DashboardContainer.propTypes = {
+    actions: PropTypes.object,
+    wells: PropTypes.array
+};
+
+
+const mapStateToProps = state => ({
+    wells: state.crud.wells
+});
+
+/**
+ * Map the actions to props.
+ */
+const mapDispatchToProps = dispatch => ({
+    actions: bindActionCreators(Object.assign({}, crudAction), dispatch)
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(DashboardContainer);

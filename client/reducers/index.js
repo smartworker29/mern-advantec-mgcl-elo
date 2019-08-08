@@ -1,13 +1,13 @@
 import {combineReducers} from 'redux';
 import {connectRouter} from 'connected-react-router';
-import {reducer as formReducer} from 'redux-form';
 
 // Import custom components
 import authReducer from './authReducer';
+import crudReducer from './crudReducer';
 
 const appReducer = (history) => combineReducers({
     router: connectRouter(history),
-    form: formReducer,  // ← redux-form
+    crud: crudReducer,
     auth: authReducer,
 });
 

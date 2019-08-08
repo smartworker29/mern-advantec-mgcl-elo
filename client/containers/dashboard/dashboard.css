@@ -29,14 +29,30 @@
   margin-top: 5px;
 }
 
-#search-filter-section input {
+#search-filter-section .filters input {
   width: calc(100% - 10px);
   box-sizing: border-box;
   padding: 5px 10px;
   margin: 5px 0;
 }
 
-#search-filter-section span {
+#search-filter-section .filters select {
+  width: calc(100% - 10px);
+  box-sizing: border-box;
+  padding: 6px 10px;
+  margin: 5px 0;
+  display: block;
+  -webkit-appearance: none;
+  border: none;
+  border-radius: 0;
+  border-radius: 0;
+  border-width: 1px;
+  border-style: inset;
+  border-color: initial;
+  border-image: initial;
+}
+
+#search-filter-section .filters span {
   font-size: 20px;
   color: #fff;
   display: flex;
@@ -44,19 +60,70 @@
   height: 100%;
 }
 
-#search-filter-section table {
-  width: calc(100% - 10px);
-  background: white;
-  font-size: 8px;
-  line-height: 16px;
-}
-
-#search-filter-section table thead tr {
-  background: #c5c5c5;
-}
 
 #search-filter-section #document-details {
   margin-left: 10px;
   background: #fff;
   height: 100%;
+}
+
+/* Wells List Table */
+.ReactTable {
+  margin-top: 10px;
+  width: calc(100% - 10px);
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.ReactTable .rt-thead.-headerGroups {
+  display: none;
+}
+.ReactTable .rt-thead.-header {
+  min-width: auto !important;
+}
+.ReactTable .rt-th, .ReactTable .rt-td {
+  text-align: center;
+  width: 20% !important;
+  padding: 2px;
+  line-height: 2em;
+  font-size: 8px;
+}
+.ReactTable .rt-tbody {
+  min-width: auto !important;
+}
+.ReactTable .-pagination {
+  flex-wrap: nowrap;
+  font-size: 8px;
+}
+.ReactTable .-pagination .-btn {
+  font-size: 8px;
+  letter-spacing: -2px;
+  font-weight: bold;
+}
+.ReactTable .-pagination .-pageInfo {
+  margin: 0;
+}
+.ReactTable .-pagination .-pageJump input {
+  width: 50px;
+  padding: 3px 0 3px;
+  margin: 0 5px;
+}
+.ReactTable .-pagination .-pageJump .-totalPages {
+  margin-left: 5px;
+}
+.ReactTable .-pagination .-previous, .ReactTable .-pagination .-next {
+  width: 20px;
+  flex: none;
+}
+
+/* Docs List Table */
+.docs-list {
+  margin: 10px;
+}
+
+/* checkoutlist */
+#checkoutlist {
+  margin: 10px;
+  background: #fff;
+  height: calc(100% - 20px);;
 }

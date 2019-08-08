@@ -10,6 +10,9 @@ import Well from '../models/well.model';
  */
 export function findAll(req, res) {
     Well.forge()
+        // .query(function(qb) {
+        //     qb.offset(0).limit(10000);
+        // })
         .fetchAll()
         .then(user => res.json({
                 error: false,
