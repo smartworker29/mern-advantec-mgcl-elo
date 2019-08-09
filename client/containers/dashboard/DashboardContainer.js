@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import GoogleMap from 'google-map-react';
+// import GoogleMap from 'google-map-react';
 import Grid from '@material-ui/core/Grid';
 import * as _ from 'lodash';
 import ReactTable from 'react-table';
@@ -8,6 +8,7 @@ import 'react-table/react-table.css';
 import {bindActionCreators} from 'redux';
 import {connect} from 'react-redux';
 
+import GMap from '../../components/GMap';
 import { WELLS, DOCS } from '../../constants/entity';
 import * as crudAction from '../../actions/crudAction';
 import stateOptions from '../../utils/us-states';
@@ -53,8 +54,22 @@ class DashboardContainer extends Component {
         console.log('---------- filter change:', e.target.value);
     }
 
+    getMarkersData = () => {
+        // const susolvkaCoords = { lat: 36.5, lng: -99.5 };
+
+        return this.props.wells.map((well, index) => ({
+            id: index,
+            lat: parseFloat(well.Lat, 10),
+            lng: parseFloat(well.Long, 10)
+        }));
+    }
+
     render() {
         const { documentDetails, filters, countyOptions, selectedState } = this.state;
+        const markersData = this.getMarkersData();
+        _.remove(markersData, function (e) {
+            return isNaN(e.lat) || isNaN(e.lng);
+        });
 
 return (
             <div className="homepage-container">
@@ -136,11 +151,9 @@ return (
                         />
                     </Grid>
                     <Grid item xs={8}>
-                        <GoogleMap
-                            bootstrapURLKeys={{key: 'AIzaSyDYJ8d9-x2HXzamwTMBbqftgQnKPgM44Vs' }}
-                            center={[ 36.256250999999999, -99.563209999999998 ]}
-                            zoom={5}
-                        />
+                        {markersData.length > 0 &&
+                            <GMap key={markersData.length} markersData={markersData} />
+                        }
                     </Grid>
                     <Grid item xs={2}>
                         <div id="document-details">
