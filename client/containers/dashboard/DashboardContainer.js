@@ -7,6 +7,7 @@ import ReactTable from 'react-table';
 import 'react-table/react-table.css';
 import {bindActionCreators} from 'redux';
 import {connect} from 'react-redux';
+import Select from 'react-select';
 
 import GMap from '../../components/GMap';
 import { WELLS, DOCS } from '../../constants/entity';
@@ -14,6 +15,43 @@ import * as crudAction from '../../actions/crudAction';
 import stateOptions from '../../utils/us-states';
 import counties from '../../utils/counties.json';
 import './dashboard.css';
+
+const customStyles = {
+    option: (provided) => ({
+        ...provided,
+        fontSize: 12,
+        padding: '2px 10px',
+    }),
+    control: (provided) => ({
+        ...provided,
+        minHeight: 30,
+        height: 30,
+        borderRadius: 0,
+        width: '100%',
+        marginLeft: -10
+    }),
+    input: (provided) => ({
+        ...provided,
+        margin: 0,
+        padding: '0 10px'
+    }),
+    indicatorsContainer: (provided) => ({
+        ...provided,
+        display: 'none'
+    }),
+    container: (provided) => ({
+        ...provided,
+        margin: '5px 0',
+        fontSize: 12,
+        fontFamily: 'sans-serif'
+    }),
+    menu: (provided) => ({
+        ...provided,
+        marginLeft: -10,
+        marginTop: 3
+    }),
+};
+
 class DashboardContainer extends Component {
 
     constructor(props) {
@@ -44,14 +82,17 @@ class DashboardContainer extends Component {
     }
 
     onStateChange = (e) => {
-        const selectedState = e.target.value;
+        const selectedState = e.value;
         const countyOptions = counties[selectedState];
         this.setState({ selectedState, countyOptions });
     }
 
-    onFilterChange = (e) => {
+    onFilterChange = (e, prop) => {
         // eslint-disable-next-line no-console
-        console.log('---------- filter change:', e.target.value);
+        // console.log('---------- filter change:', e.target.value);
+        const { filters } = this.state;
+        filters[prop] = e.target ? e.target.value : e.value;
+        this.setState({ filters });
     }
 
     getMarkersData = () => {
@@ -65,13 +106,16 @@ class DashboardContainer extends Component {
     }
 
     render() {
-        const { documentDetails, filters, countyOptions, selectedState } = this.state;
+        const { documentDetails, filters, countyOptions } = this.state;
         const markersData = this.getMarkersData();
         _.remove(markersData, function (e) {
             return isNaN(e.lat) || isNaN(e.lng);
         });
 
-return (
+        const stateOpts = stateOptions.map(option => ({ value: option.abbreviation, label: option.abbreviation }));
+        const countyOpts = countyOptions.map(option => ({ value: option, label: option }));
+
+        return (
             <div className="homepage-container">
                 <div className="header">
                     <span className="logo">Logo</span>
@@ -82,38 +126,47 @@ return (
                         <Grid container className="filters">
                             <Grid item xs={6}><span>State</span></Grid>
                             <Grid item xs={6}>
-                                <select name="state" value={selectedState} onChange={this.onStateChange}>
-                                    <option value={undefined}>&nbsp;</option>
-                                    {stateOptions.map(option =>
-                                        <option key={option.abbreviation} value={option.abbreviation}>{option.name}</option>
-                                    )}
-                                </select>
+                                <Select
+                                    defaultValue={undefined}
+                                    options={stateOpts}
+                                    styles={customStyles}
+                                    placeholder=''
+                                    onChange={this.onStateChange}
+                                />
                             </Grid>
                             <Grid item xs={6}><span>County</span></Grid>
                             <Grid item xs={6}>
-                                <select name="county" value={filters.county} onChange={this.onFilterChange}>
-                                    <option value={undefined}>&nbsp;</option>
-                                    {countyOptions.map((option, index) =>
-                                        <option key={index} value={option}>{option}</option>
-                                    )}
-                                </select>
+                                <Select
+                                    name="county" 
+                                    defaultValue={undefined}
+                                    options={countyOpts}
+                                    placeholder=''
+                                    styles={customStyles}
+                                    onChange={(e) => this.onFilterChange(e, 'county')}
+                                />
                             </Grid>
                             <Grid item xs={6}><span>Meridian</span></Grid>
                             <Grid item xs={6}>
-                                <select name="meridian" value={filters.meridian} onChange={this.onFilterChange}>
-                                    <option value={undefined}>&nbsp;</option>
-                                    <option value={'Indian'}>Indian</option>
-                                    <option value={'Cimarron'}>Cimarron</option>
-                                </select>
+                                <Select
+                                    name="meridian" 
+                                    defaultValue={undefined}
+                                    options={[
+                                        { value: 'Indian', label: 'Indian' },
+                                        { value: 'Cimarron', label: 'Cimarron' }
+                                    ]}
+                                    placeholder=''
+                                    styles={customStyles}
+                                    onChange={(e) => this.onFilterChange(e, 'meridian')}
+                                />
                             </Grid>
                             <Grid item xs={6}><span>Section</span></Grid>
-                            <Grid item xs={6}><input name="section" value={filters.section} onChange={this.onFilterChange} /></Grid>
+                            <Grid item xs={6}><input name="section" onChange={(e) => this.onFilterChange(e, 'section')} /></Grid>
                             <Grid item xs={6}><span>Township</span></Grid>
-                            <Grid item xs={6}><input name="township" value={filters.township} onChange={this.onFilterChange} /></Grid>
+                            <Grid item xs={6}><input name="township" onChange={(e) => this.onFilterChange(e, 'township')} /></Grid>
                             <Grid item xs={6}><span>Range</span></Grid>
-                            <Grid item xs={6}><input name="range" value={filters.range} onChange={this.onFilterChange} /></Grid>
+                            <Grid item xs={6}><input name="range" onChange={(e) => this.onFilterChange(e, 'range')} /></Grid>
                             <Grid item xs={6}><span style={{ margin: '5px 0' }}>Keyword</span></Grid>
-                            <Grid item xs={12}><input name="keyword" value={filters.keyword} onChange={this.onFilterChange} /></Grid>
+                            <Grid item xs={12}><input name="keyword" className="keyword" onChange={(e) => this.onFilterChange(e, 'keyword')} /></Grid>
                         </Grid>
                         <ReactTable
                             data={this.props.wells}

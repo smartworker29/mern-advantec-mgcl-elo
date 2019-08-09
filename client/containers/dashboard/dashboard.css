@@ -30,26 +30,17 @@
 }
 
 #search-filter-section .filters input {
-  width: calc(100% - 10px);
+  width: calc(100%);
   box-sizing: border-box;
-  padding: 5px 10px;
+  padding: 5px 8px;
   margin: 5px 0;
+  font-size: 12px;
+  margin-left: -10px;
 }
 
-#search-filter-section .filters select {
+#search-filter-section .filters input.keyword {
   width: calc(100% - 10px);
-  box-sizing: border-box;
-  padding: 6px 10px;
-  margin: 5px 0;
-  display: block;
-  -webkit-appearance: none;
-  border: none;
-  border-radius: 0;
-  border-radius: 0;
-  border-width: 1px;
-  border-style: inset;
-  border-color: initial;
-  border-image: initial;
+  margin-left: 0;
 }
 
 #search-filter-section .filters span {
