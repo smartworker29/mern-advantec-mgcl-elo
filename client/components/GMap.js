@@ -10,7 +10,6 @@ import GoogleMapReact from 'google-map-react';
 import ClusterMarker from './markers/ClusterMarker';
 import SimpleMarker from './markers/SimpleMarker';
 import supercluster from 'points-cluster';
-import * as _ from 'lodash';
 
 export const gMap = ({
   hoverDistance, options,
@@ -19,7 +18,8 @@ export const gMap = ({
   clusters,
   onChildMouseEnter,
   onChildClick,
-  selectedMarker
+  selectedMarker,
+  selectedWellItem
 }) => (
   <GoogleMapReact
     options={options}
@@ -35,10 +35,14 @@ export const gMap = ({
     {
       clusters
         .map((cluster, index) => {
-          console.log('------ selected marker', selectedMarker);
           return (
           cluster.numPoints === 1
-            ? <SimpleMarker key={`simplemarker_${index}`} {...cluster} selectedMarker={selectedMarker === `simplemarker_${index}` } />
+            ? (
+            <SimpleMarker
+              key={`simplemarker_${index}`}
+              {...cluster}
+              selectedMarker={!selectedWellItem.lat ? selectedMarker === `simplemarker_${index}` : (selectedWellItem.lat === cluster.lat && selectedWellItem.lng === cluster.lng) }
+            />)
             : <ClusterMarker key={`clustermarker_${index}`} {...cluster} />
         );
       })
@@ -54,7 +58,8 @@ gMap.propTypes = {
   onChildMouseEnter: PropTypes.func,
   onChildClick: PropTypes.func,
   clusters: PropTypes.array,
-  selectedMarker: PropTypes.string
+  selectedMarker: PropTypes.string,
+  selectedWellItem: PropTypes.object
 };
 
 export const gMapHOC = compose(
@@ -63,7 +68,7 @@ export const gMapHOC = compose(
     hoverDistance: 30,
     options: {
       minZoom: 3,
-      maxZoom: 15,
+      maxZoom: 16,
       mapTypeControl: true,
       animatedZoom: true
     },
@@ -80,6 +85,11 @@ export const gMapHOC = compose(
     undefined
   ),
   withState(
+    'selectedWellItem',
+    'setSelectedWellItem',
+    {}
+  ),
+  withState(
     'hoveredMarkerId',
     'setHoveredMarkerId',
     -1
@@ -87,10 +97,10 @@ export const gMapHOC = compose(
   withState(
     'mapProps',
     'setMapProps',
-    {
-      center: { lat: 36.256251, lng: -99.56321 },
+    props => ({
+      center: props.selectedFromWellList.lat ? props.selectedFromWellList : { lat: 36.256251, lng: -99.56321 },
       zoom: 10,
-    }
+    })
   ),
   // describe events
   withHandlers({
@@ -98,11 +108,11 @@ export const gMapHOC = compose(
       setMapProps({ center, zoom, bounds });
     },
     onChildMouseEnter: ({ setHoveredMarkerId }) => (hoverKey, { id }) => {
-      console.log('----- hover event');
       setHoveredMarkerId(id);
     },
-    onChildClick: ({ setSelectedMarker }) => (id) => {
+    onChildClick: ({ setSelectedMarker, setSelectedWellItem }) => (id) => {
       setSelectedMarker(id);
+      setSelectedWellItem({});
     },
   }),
   // precalculate clusters if markers data has changed
@@ -119,21 +129,30 @@ export const gMapHOC = compose(
       ),
     })
   ),
+  withPropsOnChange(
+    ['selectedFromWellList'],
+    ({ setSelectedWellItem, selectedFromWellList, mapProps, setMapProps }) => {
+      setSelectedWellItem(selectedFromWellList);
+      setMapProps({ ...mapProps, center: selectedFromWellList, zoom: 14 });
+    }
+  ),
   // get clusters specific for current bounds and zoom
   withPropsOnChange(
     ['mapProps', 'getCluster'],
-    ({ mapProps, getCluster }) => ({
-      clusters: mapProps.bounds
-        ? getCluster(mapProps)
-          .map(({ wx, wy, numPoints, points }) => ({
-            lat: wy,
-            lng: wx,
-            text: '' + numPoints,
-            numPoints,
-            id: `${numPoints}_${points[0].id}`,
-          }))
-        : [],
-    })
+    ({ mapProps, getCluster }) => {
+      return ({
+        clusters: mapProps.bounds
+          ? getCluster(mapProps)
+            .map(({ wx, wy, numPoints, points }) => ({
+              lat: wy,
+              lng: wx,
+              text: '' + numPoints,
+              numPoints,
+              id: `${numPoints}_${points[0].id}`,
+            }))
+          : [],
+      });
+    }
   ),
   // set hovered
   withPropsOnChange(

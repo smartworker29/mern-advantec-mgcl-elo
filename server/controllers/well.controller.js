@@ -9,9 +9,35 @@ import Well from '../models/well.model';
  * @returns {*}
  */
 export function findAll(req, res) {
+    const options = {
+        state: req.query.state,
+        county: req.query.county,
+        meridian: req.query.meridian,
+        section: req.query.section,
+        range: req.query.range,
+        township: req.query.township
+    };
+
     Well.forge()
         .query(function(qb) {
-            qb.offset(0).limit(1000);
+            if (options.state) {
+                qb.where('State', options.state);
+            }
+            if (options.county) {
+                qb.andWhere('County', options.county);
+            }
+            if (options.meridian) {
+                qb.andWhere('Meridan', options.meridian);
+            }
+            if (options.section) {
+                qb.andWhere('Section', 'like', `%${options.section}%`);
+            }
+            if (options.range) {
+                qb.andWhere('Range', 'like', `%${options.range}%`);
+            }
+            if (options.township) {
+                qb.andWhere('Township', 'like', `%${options.township}%`);
+            }
         })
         .fetchAll()
         .then(user => res.json({

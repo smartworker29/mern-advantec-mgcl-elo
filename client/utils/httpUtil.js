@@ -1,8 +1,10 @@
 import {httpBase} from './httpBaseUtil';
 
-export const fetch = (endpoint) => {
+export const fetch = (endpoint, filters = {}) => {
     return httpBase()
-        .get(endpoint);
+        .get(endpoint, {
+            params: filters
+        });
 };
 
 export const store = (endpoint, data) => {

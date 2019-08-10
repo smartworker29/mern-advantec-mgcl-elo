@@ -2,8 +2,8 @@
 import {fetch, store, update, destroy} from '../utils/httpUtil';
 import {getPathParam} from '../utils/serializeUtil';
 
-export const fetchEntity = (entityName) => {
-    return fetch(entityName.toLowerCase());
+export const fetchEntity = (entityName, filters) => {
+    return fetch(entityName.toLowerCase(), filters);
 };
 
 export const fetchEntityById = (entityName, dataId) => {

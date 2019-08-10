@@ -21,6 +21,7 @@ const customStyles = {
         ...provided,
         fontSize: 12,
         padding: '2px 10px',
+        minHeight: 24,
     }),
     control: (provided) => ({
         ...provided,
@@ -69,7 +70,9 @@ class DashboardContainer extends Component {
             },
             selectedState: undefined,
             docsList: [],
-            countyOptions: []
+            countyOptions: [],
+            selectedTableRow: false,
+            selectedFromWellList: {}
         };
 
         props.actions.fetchAll(WELLS);
@@ -83,16 +86,24 @@ class DashboardContainer extends Component {
 
     onStateChange = (e) => {
         const selectedState = e.value;
+        const { filters } = this.state;
+        filters['state'] = selectedState;
+        filters['county'] = undefined;
         const countyOptions = counties[selectedState];
-        this.setState({ selectedState, countyOptions });
+        this.setState({ selectedState, countyOptions, filters });
+        this.listWells();
     }
 
     onFilterChange = (e, prop) => {
-        // eslint-disable-next-line no-console
-        // console.log('---------- filter change:', e.target.value);
         const { filters } = this.state;
         filters[prop] = e.target ? e.target.value : e.value;
         this.setState({ filters });
+        this.listWells();
+    }
+
+    listWells = () => {
+        const { filters } = this.state;
+        this.props.actions.fetchAll(WELLS, filters);
     }
 
     getMarkersData = () => {
@@ -106,15 +117,20 @@ class DashboardContainer extends Component {
     }
 
     render() {
-        const { documentDetails, filters, countyOptions } = this.state;
+        const { documentDetails, filters, countyOptions, selectedFromWellList } = this.state;
         const markersData = this.getMarkersData();
         _.remove(markersData, function (e) {
             return isNaN(e.lat) || isNaN(e.lng);
         });
 
-        const stateOpts = stateOptions.map(option => ({ value: option.abbreviation, label: option.abbreviation }));
-        const countyOpts = countyOptions.map(option => ({ value: option, label: option }));
 
+        console.log('----- selectedFromWellList:', selectedFromWellList);
+
+        const stateOpts = stateOptions.map(option => ({ value: option.abbreviation, label: option.abbreviation }));
+        stateOpts.unshift({ value: undefined, label: ' ' });
+        const countyOpts = countyOptions.map(option => ({ value: option, label: option }));
+        countyOpts.unshift({ value: undefined, label: ' ' });
+        
         return (
             <div className="homepage-container">
                 <div className="header">
@@ -127,7 +143,7 @@ class DashboardContainer extends Component {
                             <Grid item xs={6}><span>State</span></Grid>
                             <Grid item xs={6}>
                                 <Select
-                                    defaultValue={undefined}
+                                    defaultValue={filters.state}
                                     options={stateOpts}
                                     styles={customStyles}
                                     placeholder=''
@@ -140,6 +156,7 @@ class DashboardContainer extends Component {
                                     name="county" 
                                     defaultValue={undefined}
                                     options={countyOpts}
+                                    key={filters.state}
                                     placeholder=''
                                     styles={customStyles}
                                     onChange={(e) => this.onFilterChange(e, 'county')}
@@ -151,6 +168,7 @@ class DashboardContainer extends Component {
                                     name="meridian" 
                                     defaultValue={undefined}
                                     options={[
+                                        { value: undefined, label: '' },
                                         { value: 'Indian', label: 'Indian' },
                                         { value: 'Cimarron', label: 'Cimarron' }
                                     ]}
@@ -201,12 +219,32 @@ class DashboardContainer extends Component {
                             ]}
                             defaultPageSize={20}
                             className="-striped -highlight"
+                            getTrProps={(state, rowInfo) => {
+                                if (rowInfo && rowInfo.row) {
+                                    return {
+                                        onClick: () => {
+                                            this.setState({
+                                                selectedTableRow: rowInfo.index,
+                                                selectedFromWellList: {
+                                                    lat: parseFloat(rowInfo.original.Lat, 10),
+                                                    lng: parseFloat(rowInfo.original.Long, 10)
+                                                }
+                                            });
+                                        },
+                                        style: {
+                                            background: rowInfo.index === this.state.selectedTableRow ? '#00afec' : 'white',
+                                            color: rowInfo.index === this.state.selectedTableRow ? 'white' : 'black',
+                                            cursor: 'pointer'
+                                        }
+                                    };
+                                }else{
+                                    return {};
+                                }
+                            }}
                         />
                     </Grid>
                     <Grid item xs={8}>
-                        {markersData.length > 0 &&
-                            <GMap key={markersData.length} markersData={markersData} />
-                        }
+                        <GMap key={markersData.length} markersData={markersData} selectedFromWellList={selectedFromWellList} />
                     </Grid>
                     <Grid item xs={2}>
                         <div id="document-details">

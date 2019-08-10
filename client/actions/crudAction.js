@@ -19,9 +19,9 @@ import * as httpService from '../services/httpService';
  */
 
 
-export const fetchAll = (entity) => {
+export const fetchAll = (entity, filters) => {
     return dispatch => {
-        return httpService.fetchEntity(entity).then((response) => {
+        return httpService.fetchEntity(entity, filters).then((response) => {
             dispatch(commonAction.fetch(entity, response.data));
         })
             .catch((error) => {
