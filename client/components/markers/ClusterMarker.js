@@ -7,7 +7,7 @@ import pure from 'recompose/pure';
 import { Motion, spring } from 'react-motion';
 
 export const clusterMarker = ({
-  styles, text,
+  styles, numPoints,
   defaultMotionStyle, motionStyle,
 }) => (
   <Motion
@@ -25,7 +25,7 @@ export const clusterMarker = ({
         <div
           style={styles.text}
         >
-          {text}
+          {numPoints}
         </div>
       </div>
     )
@@ -35,7 +35,7 @@ export const clusterMarker = ({
 
 clusterMarker.propTypes = {
   styles: PropTypes.object,
-  text: PropTypes.string,
+  numPoints: PropTypes.number,
   defaultMotionStyle: PropTypes.object,
   motionStyle: PropTypes.object
 };

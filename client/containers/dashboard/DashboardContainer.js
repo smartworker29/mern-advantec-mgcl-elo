@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 // import GoogleMap from 'google-map-react';
@@ -84,6 +85,17 @@ class DashboardContainer extends Component {
         this.setState({ countyOptions });
     }
 
+    UNSAFE_componentWillReceiveProps(newProps) {
+        if (this.props.wells && (newProps.wells.length !== this.props.wells.length)) {
+            if (_.some(this.state.filters, (value) => value !== undefined)) {
+                const wellList = newProps.wells.map(well => well.ID);
+                this.props.actions.fetchAll(DOCS, { wells: _.compact(wellList) });
+            } else {
+                this.props.actions.fetchAll(DOCS);
+            }
+        }
+    }
+
     onStateChange = (e) => {
         const selectedState = e.value;
         const { filters } = this.state;
@@ -107,13 +119,15 @@ class DashboardContainer extends Component {
     }
 
     getMarkersData = () => {
-        // const susolvkaCoords = { lat: 36.5, lng: -99.5 };
-
-        return this.props.wells.map((well, index) => ({
-            id: index,
+        return this.props.wells.map(well => ({
+            id: well.ID,
             lat: parseFloat(well.Lat, 10),
             lng: parseFloat(well.Long, 10)
         }));
+    }
+
+    onMapMarkerClickHandler = (markerId) => {
+        this.props.actions.fetchAll(DOCS, { wells: [ markerId ] });
     }
 
     render() {
@@ -122,9 +136,6 @@ class DashboardContainer extends Component {
         _.remove(markersData, function (e) {
             return isNaN(e.lat) || isNaN(e.lng);
         });
-
-
-        console.log('----- selectedFromWellList:', selectedFromWellList);
 
         const stateOpts = stateOptions.map(option => ({ value: option.abbreviation, label: option.abbreviation }));
         stateOpts.unshift({ value: undefined, label: ' ' });
@@ -230,6 +241,7 @@ class DashboardContainer extends Component {
                                                     lng: parseFloat(rowInfo.original.Long, 10)
                                                 }
                                             });
+                                            this.props.actions.fetchAll(DOCS, { wells: [rowInfo.original.ID] });
                                         },
                                         style: {
                                             background: rowInfo.index === this.state.selectedTableRow ? '#00afec' : 'white',
@@ -244,7 +256,7 @@ class DashboardContainer extends Component {
                         />
                     </Grid>
                     <Grid item xs={8}>
-                        <GMap key={markersData.length} markersData={markersData} selectedFromWellList={selectedFromWellList} />
+                        <GMap key={markersData.length} markersData={markersData} selectedFromWellList={selectedFromWellList} onClickHandler={this.onMapMarkerClickHandler} />
                     </Grid>
                     <Grid item xs={2}>
                         <div id="document-details">
@@ -338,7 +350,7 @@ class DashboardContainer extends Component {
                                         }
                                     ]
                                 }
-                            defaultPageSize={20}
+                            defaultPageSize={10}
                             previousText={'<<'}
                             nextText={'>>'}
                             className="-striped -highlight"
@@ -360,6 +372,12 @@ DashboardContainer.propTypes = {
     actions: PropTypes.object,
     wells: PropTypes.array,
     docs: PropTypes.array
+};
+
+DashboardContainer.defaultProps = {
+    actions: {},
+    wells: [],
+    docs: []
 };
 
 

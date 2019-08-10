@@ -39,9 +39,9 @@ export const gMap = ({
           cluster.numPoints === 1
             ? (
             <SimpleMarker
-              key={`simplemarker_${index}`}
+              key={`simplemarker_${cluster.id}`}
               {...cluster}
-              selectedMarker={!selectedWellItem.lat ? selectedMarker === `simplemarker_${index}` : (selectedWellItem.lat === cluster.lat && selectedWellItem.lng === cluster.lng) }
+              selectedMarker={selectedWellItem.lat === cluster.lat && selectedWellItem.lng === cluster.lng}
             />)
             : <ClusterMarker key={`clustermarker_${index}`} {...cluster} />
         );
@@ -68,10 +68,11 @@ export const gMapHOC = compose(
     hoverDistance: 30,
     options: {
       minZoom: 3,
-      maxZoom: 16,
+      maxZoom: 13,
       mapTypeControl: true,
       animatedZoom: true
     },
+    onClickHandler: () => {}
   }),
   // withState so you could change markers if you want
   withState(
@@ -107,12 +108,15 @@ export const gMapHOC = compose(
     onChange: ({ setMapProps }) => ({ center, zoom, bounds }) => {
       setMapProps({ center, zoom, bounds });
     },
-    onChildMouseEnter: ({ setHoveredMarkerId }) => (hoverKey, { id }) => {
-      setHoveredMarkerId(id);
-    },
-    onChildClick: ({ setSelectedMarker, setSelectedWellItem }) => (id) => {
-      setSelectedMarker(id);
-      setSelectedWellItem({});
+    onChildClick: ({ setSelectedWellItem, onClickHandler, markers, mapProps, setMapProps }) => (clusterId) => {
+      const id = clusterId.split('_').pop();
+      markers.map(marker => {
+        if (marker.id === parseInt(id, 10)) {
+          setSelectedWellItem({ lat: marker.lat, lng: marker.lng });
+          setMapProps({ ...mapProps, center: { lat: marker.lat, lng: marker.lng }, zoom: 13 });
+          onClickHandler(marker.id);
+        }
+      });
     },
   }),
   // precalculate clusters if markers data has changed
@@ -133,7 +137,7 @@ export const gMapHOC = compose(
     ['selectedFromWellList'],
     ({ setSelectedWellItem, selectedFromWellList, mapProps, setMapProps }) => {
       setSelectedWellItem(selectedFromWellList);
-      setMapProps({ ...mapProps, center: selectedFromWellList, zoom: 14 });
+      setMapProps({ ...mapProps, center: selectedFromWellList, zoom: 13 });
     }
   ),
   // get clusters specific for current bounds and zoom
@@ -146,7 +150,7 @@ export const gMapHOC = compose(
             .map(({ wx, wy, numPoints, points }) => ({
               lat: wy,
               lng: wx,
-              text: '' + numPoints,
+              text: '' + points[0].id,
               numPoints,
               id: `${numPoints}_${points[0].id}`,
             }))

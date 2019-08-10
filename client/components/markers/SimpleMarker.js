@@ -8,7 +8,8 @@ import { clusterMarkerHOC } from './ClusterMarker.js';
 export const simpleMarker = ({
   styles,
   defaultMotionStyle, motionStyle,
-  selectedMarker
+  selectedMarker,
+  text
 }) => (
   <Motion
     defaultStyle={defaultMotionStyle}
@@ -23,6 +24,9 @@ export const simpleMarker = ({
           transform: `translate3D(0, 0, 0) scale(${selectedMarker ? scale * 1.5 : scale}, ${selectedMarker ? scale * 1.5 : scale})`,
         }}
       >
+        {selectedMarker &&
+          <span style={{ ...styles.text }}>{ text }</span>
+        }
       </div>
     )
   }
@@ -54,6 +58,17 @@ export const simpleMarkerHOC = compose(
         transformOrigin: '19.5px 64px',
         margin: 0,
         padding: 0
+      },
+      text: {
+        position: 'absolute',
+        bottom: -5,
+        textAlign: 'center',
+        width: '100%',
+        display: 'inline-block',
+        background: 'white',
+        border: '1px solid lightblue',
+        borderRadius: 3,
+        padding: '1px 0'
       }
     },
     initialScale: 0.3,

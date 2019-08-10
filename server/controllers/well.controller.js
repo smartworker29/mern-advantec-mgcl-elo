@@ -17,7 +17,7 @@ export function findAll(req, res) {
         range: req.query.range,
         township: req.query.township
     };
-
+    
     Well.forge()
         .query(function(qb) {
             if (options.state) {
@@ -40,9 +40,9 @@ export function findAll(req, res) {
             }
         })
         .fetchAll()
-        .then(user => res.json({
+        .then(wells => res.json({
                 error: false,
-                data: user.toJSON()
+                data: wells.toJSON()
             })
         )
         .catch(err => res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({

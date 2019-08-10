@@ -25,29 +25,24 @@ export default function (state, action) {
     switch (action.type) {
         case ENTITY_CREATE:
             newState[action.entity] = Object.assign({}, state, action.data);
-            
-return newState;
+            return newState;
 
         case ENTITY_UPDATE:
             newState[action.entity] = Object.assign({}, state, action.data);
-            
-return newState;
+            return newState;
 
         case ENTITY_FETCH:
             newState[action.entity] = action.data.data;
-
-return Object.assign({}, newState);
+            return Object.assign({}, newState);
 
             
         case SELECT_ENTITY_ITEM:
             newState.selectedItem[action.entity] = Object.assign({}, state, action.data);
-            
-return newState;
+            return newState;
 
         case CLEAR_ENTITY_LIST:
             newState[action.entity] = {};
-            
-return newState;
+            return newState;
 
         default:
             return newState;
