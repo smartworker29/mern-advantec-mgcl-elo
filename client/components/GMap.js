@@ -68,7 +68,7 @@ export const gMapHOC = compose(
     hoverDistance: 30,
     options: {
       minZoom: 3,
-      maxZoom: 13,
+      maxZoom: 15,
       mapTypeControl: true,
       animatedZoom: true
     },
@@ -99,8 +99,8 @@ export const gMapHOC = compose(
     'mapProps',
     'setMapProps',
     props => ({
-      center: props.selectedFromWellList.lat ? props.selectedFromWellList : { lat: 36.256251, lng: -99.56321 },
-      zoom: 10,
+      center: props.selectedFromWellList.lat ? props.selectedFromWellList : { lat: props.markersData[0] ? props.markersData[0].lat : 36.256251, lng: props.markersData[0] ? props.markersData[0].lng : -99.56321 },
+      zoom: props.markersData.length > 1000 ? 8 : 10,
     })
   ),
   // describe events

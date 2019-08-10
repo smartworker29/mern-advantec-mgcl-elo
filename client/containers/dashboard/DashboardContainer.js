@@ -256,7 +256,12 @@ class DashboardContainer extends Component {
                         />
                     </Grid>
                     <Grid item xs={8}>
-                        <GMap key={markersData.length} markersData={markersData} selectedFromWellList={selectedFromWellList} onClickHandler={this.onMapMarkerClickHandler} />
+                        <GMap
+                            key={markersData.length}
+                            markersData={markersData}
+                            selectedFromWellList={selectedFromWellList}
+                            onClickHandler={this.onMapMarkerClickHandler}
+                        />
                     </Grid>
                     <Grid item xs={2}>
                         <div id="document-details">
