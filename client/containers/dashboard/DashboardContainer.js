@@ -129,7 +129,7 @@ class DashboardContainer extends Component {
     onMapMarkerClickHandler = (markerId) => {
         this.props.actions.fetchAll(DOCS, { wells: [ markerId ] });
     }
-
+    
     render() {
         const { documentDetails, filters, countyOptions, selectedFromWellList } = this.state;
         const markersData = this.getMarkersData();
@@ -273,10 +273,9 @@ class DashboardContainer extends Component {
                     <Grid item xs={8} className="docs-list">
                         <ReactTable
                             data={this.props.docs}
+                            key={this.props.docs.length}
                             style={{ margin : 10 }}
                             filterable
-                            defaultFilterMethod={(filter, row) =>
-                                String(row[filter.id]) === filter.value}
                             columns={[
                                         {
                                             id: 'checkbox',
@@ -312,46 +311,59 @@ class DashboardContainer extends Component {
                                         },
                                         {
                                             Header: 'ID',
-                                            accessor: 'ID',
-                                            filterMethod: (filter, row) =>
-                                                row[filter.id].startsWith(filter.value) &&
-                                                row[filter.id].endsWith(filter.value)
-                                            },
+                                            id: 'ID',
+                                            accessor: d => d.ID,
+                                            filterMethod: (filter, row) => {
+                                                return row[filter.id].toString().indexOf(filter.value) > -1;
+                                            }
+                                        },
                                         {
                                             Header: 'File Name',
                                             id: 'FileName',
                                             accessor: d => d.FileName,
-                                            filterAll: true
+                                            filterMethod: (filter, row) => {
+                                                return row[filter.id].toLowerCase().indexOf(filter.value.toLowerCase()) > -1;
+                                            }
                                         },
                                         {
                                             Header: 'Doc Type',
                                             id: 'DocType',
                                             accessor: d => d.DocType,
-                                            filterAll: true
+                                            filterMethod: (filter, row) => {
+                                                return row[filter.id].toLowerCase().indexOf(filter.value.toLowerCase()) > -1;
+                                            }
                                         },
                                         {
                                             Header: 'Run Date',
                                             id: 'RunDate',
                                             accessor: d => d.RunDate,
-                                            filterAll: true
+                                            filterMethod: (filter, row) => {
+                                                return row[filter.id] && row[filter.id].toLowerCase().indexOf(filter.value.toLowerCase()) > -1;
+                                            }
                                         },
                                         {
                                             Header: 'Logger',
                                             id: 'Logger',
                                             accessor: d => d.Logger,
-                                            filterAll: true
+                                            filterMethod: (filter, row) => {
+                                                return row[filter.id].toLowerCase().indexOf(filter.value.toLowerCase()) > -1;
+                                            }
                                         },
                                         {
                                             Header: 'Well ID',
                                             id: 'Well_ID',
                                             accessor: d => d.Well_ID,
-                                            filterAll: true
+                                            filterMethod: (filter, row) => {
+                                                return row[filter.id].toString().indexOf(filter.value.toLowerCase()) > -1;
+                                            }
                                         },
                                         {
                                             Header: 'AddedDate',
                                             id: 'AddedDate',
                                             accessor: d => d.AddedDate,
-                                            filterAll: true
+                                            filterMethod: (filter, row) => {
+                                                return row[filter.id] && row[filter.id].toLowerCase().indexOf(filter.value.toLowerCase()) > -1;
+                                            }
                                         }
                                     ]
                                 }

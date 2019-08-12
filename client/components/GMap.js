@@ -68,7 +68,7 @@ export const gMapHOC = compose(
     hoverDistance: 30,
     options: {
       minZoom: 3,
-      maxZoom: 15,
+      maxZoom: 16,
       mapTypeControl: true,
       animatedZoom: true
     },
