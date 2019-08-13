@@ -5,6 +5,7 @@ import compose from 'recompose/compose';
 import defaultProps from 'recompose/defaultProps';
 import withState from 'recompose/withState';
 import withHandlers from 'recompose/withHandlers';
+import mapProps from 'recompose/mapProps';
 import withPropsOnChange from 'recompose/withPropsOnChange';
 import GoogleMapReact from 'google-map-react';
 import ClusterMarker from './markers/ClusterMarker';
@@ -149,7 +150,9 @@ export const gMapHOC = compose(
   withState(
     'markers',
     'setMarkers',
-    props => props.markersData
+    props => {
+      return props.markersData;
+    }
   ),
   withState(
     'selectedMarker',
@@ -239,6 +242,12 @@ export const gMapHOC = compose(
           hovered: cluster.id === hoveredMarkerId,
         })),
     })
+  ),
+  withPropsOnChange(
+    ['markersData'],
+    ({ setMarkers, markersData }) => {
+      setMarkers(markersData);
+    }
   ),
 );
 
