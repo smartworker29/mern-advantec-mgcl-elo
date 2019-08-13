@@ -10,7 +10,8 @@ import Doc from '../models/doc.model';
  */
 export function findAll(req, res) {
     const options = {
-        wells: req.query.wells ? req.query.wells : []
+        wells: req.query.wells ? req.query.wells : [],
+        state: req.query.state
     };
     if (options.wells.length === 0) {
         Doc.forge()
@@ -27,18 +28,38 @@ export function findAll(req, res) {
                     error: err
                 })
             );
+    } else if (options.state) {
+        Well.forge()
+        .query(function(qb) {
+            if (options.state) {
+                qb.where('State', options.state);
+            }
+        })
+        .fetchAll()
+        .then(wells => Doc.forge())
+        .where('Well_ID', 'in', wells)
+        .fetchAll()
+        .then(docs => res.json({
+                error: false,
+                data: docs.toJSON()
+            })
+        )
+        .catch(err => res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+                error: err
+            })
+        );
     } else {
         Doc.forge()
-            .where('Well_ID', 'in', options.wells)
-            .fetchAll()
-            .then(docs => res.json({
-                    error: false,
-                    data: docs.toJSON()
-                })
-            )
-            .catch(err => res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-                    error: err
-                })
-            );
+        .where('Well_ID', 'in', options.wells)
+        .fetchAll()
+        .then(docs => res.json({
+                error: false,
+                data: docs.toJSON()
+            })
+        )
+        .catch(err => res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+                error: err
+            })
+        );
     }
 }

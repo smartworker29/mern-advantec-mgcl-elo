@@ -10,7 +10,7 @@ import {bindActionCreators} from 'redux';
 import {connect} from 'react-redux';
 import Select from 'react-select';
 
-import GMap from '../../components/GMap';
+import GMap from '../../components/GMap/GMap';
 import { WELLS, DOCS } from '../../constants/entity';
 import * as crudAction from '../../actions/crudAction';
 import stateOptions from '../../utils/us-states';
@@ -88,8 +88,9 @@ class DashboardContainer extends Component {
     UNSAFE_componentWillReceiveProps(newProps) {
         if (this.props.wells && (newProps.wells.length !== this.props.wells.length)) {
             if (_.some(this.state.filters, (value) => value !== undefined)) {
-                const wellList = newProps.wells.map(well => well.ID);
-                this.props.actions.fetchAll(DOCS, { wells: _.compact(wellList) });
+                let query = {};
+                const wellList = _.compact(newProps.wells.map(well => well.ID));
+                this.props.actions.fetchAll(DOCS, { wells: wellList.length > 0 ? wellList : [-1] });
             } else {
                 this.props.actions.fetchAll(DOCS);
             }
@@ -101,7 +102,7 @@ class DashboardContainer extends Component {
         const { filters } = this.state;
         filters['state'] = selectedState;
         filters['county'] = undefined;
-        const countyOptions = counties[selectedState];
+        const countyOptions = counties[selectedState] || [];
         this.setState({ selectedState, countyOptions, filters });
         this.listWells();
     }
@@ -279,11 +280,16 @@ class DashboardContainer extends Component {
                         />
                     </Grid>
                     <Grid item xs={8}>
-                        <GMap
-                            markersData={markersData}
-                            selectedFromWellList={selectedFromWellList}
-                            onClickHandler={this.onMapMarkerClickHandler}
-                        />
+                        <div className="map-container">
+                            <div className="loading-container">
+                                <img src="/img/circle-loading-gif.gif" />
+                            </div>
+                            <GMap
+                                markersData={markersData}
+                                selectedFromWellList={selectedFromWellList}
+                                onClickHandler={this.onMapMarkerClickHandler}
+                            />
+                        </div>
                     </Grid>
                     <Grid item xs={2}>
                         <div id="document-details">

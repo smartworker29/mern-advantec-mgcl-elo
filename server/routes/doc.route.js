@@ -83,6 +83,11 @@ router.route('/')
  *         description: "Query for Products with same wells"
  *         type: "array"
  *         default: []
+ *       - name: "state"
+ *         in: "query"
+ *         description: "Query for Products with same state"
+ *         type: "string"
+ *         default: ""
  *     responses:
  *       200:
  *         description: OK

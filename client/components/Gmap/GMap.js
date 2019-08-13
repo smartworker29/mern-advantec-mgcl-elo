@@ -140,7 +140,7 @@ export const gMapHOC = compose(
     hoverDistance: 30,
     options: {
       minZoom: 3,
-      maxZoom: 14,
+      maxZoom: 12,
       mapTypeControl: true,
       animatedZoom: true
     },
@@ -211,7 +211,7 @@ export const gMapHOC = compose(
     ['selectedFromWellList'],
     ({ setSelectedWellItem, selectedFromWellList, mapProps, setMapProps }) => {
       setSelectedWellItem(selectedFromWellList);
-      setMapProps({ ...mapProps, center: selectedFromWellList });
+      setMapProps({ ...mapProps, center: selectedFromWellList, zoom: 15 });
     }
   ),
   // get clusters specific for current bounds and zoom
