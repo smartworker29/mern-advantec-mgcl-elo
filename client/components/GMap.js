@@ -70,7 +70,7 @@ const apiIsLoaded = (map, maps) => {
   map.data.setStyle({
     strokeWeight: 1,
     strokeColor: 'green',
-    visible: true,
+    visible: false,
   });
   const centerControlDiv = document.createElement('div');
   const centerControl = new CenterControl(centerControlDiv, map);
