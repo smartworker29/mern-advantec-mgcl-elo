@@ -10,7 +10,7 @@ import {bindActionCreators} from 'redux';
 import {connect} from 'react-redux';
 import Select from 'react-select';
 
-import GMap from '../../components/GMap';
+import GMap from '../../components/GMap/GMap';
 import { WELLS, DOCS } from '../../constants/entity';
 import * as crudAction from '../../actions/crudAction';
 import stateOptions from '../../utils/us-states';
@@ -88,8 +88,9 @@ class DashboardContainer extends Component {
     UNSAFE_componentWillReceiveProps(newProps) {
         if (this.props.wells && (newProps.wells.length !== this.props.wells.length)) {
             if (_.some(this.state.filters, (value) => value !== undefined)) {
-                const wellList = newProps.wells.map(well => well.ID);
-                this.props.actions.fetchAll(DOCS, { wells: _.compact(wellList) });
+                let query = {};
+                const wellList = _.compact(newProps.wells.map(well => well.ID));
+                this.props.actions.fetchAll(DOCS, { wells: wellList.length > 0 ? wellList : [-1] });
             } else {
                 this.props.actions.fetchAll(DOCS);
             }
@@ -101,15 +102,36 @@ class DashboardContainer extends Component {
         const { filters } = this.state;
         filters['state'] = selectedState;
         filters['county'] = undefined;
-        const countyOptions = counties[selectedState];
+        const countyOptions = counties[selectedState] || [];
         this.setState({ selectedState, countyOptions, filters });
         this.listWells();
+    }
+
+    onChangeValue = (e) => {
+        const { filters } = this.state;
+        filters[e.target.name] = e.target.value;
+        this.setState({ filters });
     }
 
     onFilterChange = (e, prop) => {
         const { filters } = this.state;
         filters[prop] = e.target ? e.target.value : e.value;
         this.setState({ filters });
+        this.listWells();
+    }
+
+    resetFilter = () => {
+        this.setState({
+            filters: {
+                state: undefined,
+                county: undefined,
+                meridian: undefined,
+                section: undefined,
+                township: undefined,
+                range: undefined,
+                keyword: undefined
+            }
+        });
         this.listWells();
     }
 
@@ -142,6 +164,12 @@ class DashboardContainer extends Component {
         const countyOpts = countyOptions.map(option => ({ value: option, label: option }));
         countyOpts.unshift({ value: undefined, label: ' ' });
         
+        const meridianOpts = [
+            { value: undefined, label: '' },
+            { value: 'Indian', label: 'Indian' },
+            { value: 'Cimarron', label: 'Cimarron' }
+        ]
+
         return (
             <div className="homepage-container">
                 <div className="header">
@@ -151,13 +179,14 @@ class DashboardContainer extends Component {
                     <Grid item xs={2}>
                         <h2>Search & Filter</h2>
                         <Grid container className="filters">
+                            <Grid item xs={12} style={{ textAlign: 'right' }} ><button className="reset" onClick={this.resetFilter}>Reset Filter</button></Grid>
                             <Grid item xs={6}><span>State</span></Grid>
                             <Grid item xs={6}>
                                 <Select
-                                    defaultValue={filters.state}
                                     options={stateOpts}
                                     styles={customStyles}
                                     placeholder=''
+                                    value={stateOpts.find(option => option.value === filters.state)}
                                     onChange={this.onStateChange}
                                 />
                             </Grid>
@@ -165,11 +194,10 @@ class DashboardContainer extends Component {
                             <Grid item xs={6}>
                                 <Select
                                     name="county" 
-                                    defaultValue={undefined}
                                     options={countyOpts}
-                                    key={filters.state}
                                     placeholder=''
                                     styles={customStyles}
+                                    value={countyOpts.find(option => option.value === filters.county)}
                                     onChange={(e) => this.onFilterChange(e, 'county')}
                                 />
                             </Grid>
@@ -177,25 +205,21 @@ class DashboardContainer extends Component {
                             <Grid item xs={6}>
                                 <Select
                                     name="meridian" 
-                                    defaultValue={undefined}
-                                    options={[
-                                        { value: undefined, label: '' },
-                                        { value: 'Indian', label: 'Indian' },
-                                        { value: 'Cimarron', label: 'Cimarron' }
-                                    ]}
+                                    options={meridianOpts}
                                     placeholder=''
                                     styles={customStyles}
+                                    value={meridianOpts.find(option => option.value === filters.meridian)}
                                     onChange={(e) => this.onFilterChange(e, 'meridian')}
                                 />
                             </Grid>
                             <Grid item xs={6}><span>Section</span></Grid>
-                            <Grid item xs={6}><input name="section" onChange={(e) => this.onFilterChange(e, 'section')} /></Grid>
+                            <Grid item xs={6}><input name="section" value={filters.section || ''} onChange={this.onChangeValue} onBlur={(e) => this.onFilterChange(e, 'section')} /></Grid>
                             <Grid item xs={6}><span>Township</span></Grid>
-                            <Grid item xs={6}><input name="township" onChange={(e) => this.onFilterChange(e, 'township')} /></Grid>
+                            <Grid item xs={6}><input name="township" value={filters.township || ''} onChange={this.onChangeValue} onBlur={(e) => this.onFilterChange(e, 'township')} /></Grid>
                             <Grid item xs={6}><span>Range</span></Grid>
-                            <Grid item xs={6}><input name="range" onChange={(e) => this.onFilterChange(e, 'range')} /></Grid>
+                            <Grid item xs={6}><input name="range" value={filters.range || ''} onChange={this.onChangeValue} onBlur={(e) => this.onFilterChange(e, 'range')} /></Grid>
                             <Grid item xs={6}><span style={{ margin: '5px 0' }}>Keyword</span></Grid>
-                            <Grid item xs={12}><input name="keyword" className="keyword" onChange={(e) => this.onFilterChange(e, 'keyword')} /></Grid>
+                            <Grid item xs={12}><input name="keyword" className="keyword" onChange={this.onChangeValue} onBlur={(e) => this.onFilterChange(e, 'keyword')} /></Grid>
                         </Grid>
                         <ReactTable
                             data={this.props.wells}
@@ -256,12 +280,16 @@ class DashboardContainer extends Component {
                         />
                     </Grid>
                     <Grid item xs={8}>
-                        <GMap
-                            key={markersData.length}
-                            markersData={markersData}
-                            selectedFromWellList={selectedFromWellList}
-                            onClickHandler={this.onMapMarkerClickHandler}
-                        />
+                        <div className="map-container">
+                            <div className="loading-container">
+                                <img src="/img/circle-loading-gif.gif" />
+                            </div>
+                            <GMap
+                                markersData={markersData}
+                                selectedFromWellList={selectedFromWellList}
+                                onClickHandler={this.onMapMarkerClickHandler}
+                            />
+                        </div>
                     </Grid>
                     <Grid item xs={2}>
                         <div id="document-details">
