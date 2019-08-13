@@ -113,8 +113,24 @@ class DashboardContainer extends Component {
         this.listWells();
     }
 
+    resetFilter = () => {
+        this.setState({
+            filters: {
+                state: undefined,
+                county: undefined,
+                meridian: undefined,
+                section: undefined,
+                township: undefined,
+                range: undefined,
+                keyword: undefined
+            }
+        });
+        this.listWells();
+    }
+
     listWells = () => {
         const { filters } = this.state;
+        console.log('----------- filters.state', filters);
         this.props.actions.fetchAll(WELLS, filters);
     }
 
@@ -142,6 +158,12 @@ class DashboardContainer extends Component {
         const countyOpts = countyOptions.map(option => ({ value: option, label: option }));
         countyOpts.unshift({ value: undefined, label: ' ' });
         
+        const meridianOpts = [
+            { value: undefined, label: '' },
+            { value: 'Indian', label: 'Indian' },
+            { value: 'Cimarron', label: 'Cimarron' }
+        ]
+
         return (
             <div className="homepage-container">
                 <div className="header">
@@ -151,13 +173,14 @@ class DashboardContainer extends Component {
                     <Grid item xs={2}>
                         <h2>Search & Filter</h2>
                         <Grid container className="filters">
+                            <Grid item xs={12} style={{ textAlign: 'right' }} ><button className="reset" onClick={this.resetFilter}>Reset Filter</button></Grid>
                             <Grid item xs={6}><span>State</span></Grid>
                             <Grid item xs={6}>
                                 <Select
-                                    defaultValue={filters.state}
                                     options={stateOpts}
                                     styles={customStyles}
                                     placeholder=''
+                                    value={stateOpts.find(option => option.value === filters.state)}
                                     onChange={this.onStateChange}
                                 />
                             </Grid>
@@ -165,11 +188,10 @@ class DashboardContainer extends Component {
                             <Grid item xs={6}>
                                 <Select
                                     name="county" 
-                                    defaultValue={undefined}
                                     options={countyOpts}
-                                    key={filters.state}
                                     placeholder=''
                                     styles={customStyles}
+                                    value={countyOpts.find(option => option.value === filters.county)}
                                     onChange={(e) => this.onFilterChange(e, 'county')}
                                 />
                             </Grid>
@@ -177,23 +199,19 @@ class DashboardContainer extends Component {
                             <Grid item xs={6}>
                                 <Select
                                     name="meridian" 
-                                    defaultValue={undefined}
-                                    options={[
-                                        { value: undefined, label: '' },
-                                        { value: 'Indian', label: 'Indian' },
-                                        { value: 'Cimarron', label: 'Cimarron' }
-                                    ]}
+                                    options={meridianOpts}
                                     placeholder=''
                                     styles={customStyles}
+                                    value={meridianOpts.find(option => option.value === filters.meridian)}
                                     onChange={(e) => this.onFilterChange(e, 'meridian')}
                                 />
                             </Grid>
                             <Grid item xs={6}><span>Section</span></Grid>
-                            <Grid item xs={6}><input name="section" onChange={(e) => this.onFilterChange(e, 'section')} /></Grid>
+                            <Grid item xs={6}><input name="section" key={filters.section} value={filters.section} onChange={(e) => this.onFilterChange(e, 'section')} /></Grid>
                             <Grid item xs={6}><span>Township</span></Grid>
-                            <Grid item xs={6}><input name="township" onChange={(e) => this.onFilterChange(e, 'township')} /></Grid>
+                            <Grid item xs={6}><input name="township" key={filters.section} value={filters.township} onChange={(e) => this.onFilterChange(e, 'township')} /></Grid>
                             <Grid item xs={6}><span>Range</span></Grid>
-                            <Grid item xs={6}><input name="range" onChange={(e) => this.onFilterChange(e, 'range')} /></Grid>
+                            <Grid item xs={6}><input name="range" key={filters.section} value={filters.range} onChange={(e) => this.onFilterChange(e, 'range')} /></Grid>
                             <Grid item xs={6}><span style={{ margin: '5px 0' }}>Keyword</span></Grid>
                             <Grid item xs={12}><input name="keyword" className="keyword" onChange={(e) => this.onFilterChange(e, 'keyword')} /></Grid>
                         </Grid>
