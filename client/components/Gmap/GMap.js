@@ -5,7 +5,6 @@ import compose from 'recompose/compose';
 import defaultProps from 'recompose/defaultProps';
 import withState from 'recompose/withState';
 import withHandlers from 'recompose/withHandlers';
-import mapProps from 'recompose/mapProps';
 import withPropsOnChange from 'recompose/withPropsOnChange';
 import GoogleMapReact from 'google-map-react';
 import ClusterMarker from './markers/ClusterMarker';
@@ -13,22 +12,6 @@ import SimpleMarker from './markers/SimpleMarker';
 import supercluster from 'points-cluster';
 import geoJSON from './geojson.json';
 
-
-function buildCoordinatesArrayFromString(MultiGeometryCoordinates){
-  var finalData = [];
-  var grouped = MultiGeometryCoordinates.split("\n");
-
-  grouped.forEach(function(item, i){
-      let a = item.trim().split(',');
-
-      finalData.push({
-          lng: parseFloat(a[0]),
-          lat: parseFloat(a[1])
-      });
-  });
-
-  return finalData;
-}
 
 function CenterControl(controlDiv, map) {
 
@@ -75,21 +58,20 @@ const apiIsLoaded = (map, maps) => {
   });
   const centerControlDiv = document.createElement('div');
   const centerControl = new CenterControl(centerControlDiv, map);
-
   centerControlDiv.index = 1;
-  map.controls[google.maps.ControlPosition.TOP_CENTER].push(centerControlDiv);
-
+  map.controls[maps.ControlPosition.TOP_CENTER].push(centerControlDiv);
 };
 
 export const gMap = ({
-  hoverDistance, options,
+  hoverDistance,
+  options,
   mapProps: { center, zoom },
   onChange,
   clusters,
   onChildMouseEnter,
   onChildClick,
   selectedMarker,
-  selectedWellItem
+  selectedWellItem,
 }) => (
   <GoogleMapReact
     options={options}
@@ -140,7 +122,7 @@ export const gMapHOC = compose(
     hoverDistance: 30,
     options: {
       minZoom: 3,
-      maxZoom: 12,
+      maxZoom: 15,
       mapTypeControl: true,
       animatedZoom: true
     },
@@ -201,8 +183,9 @@ export const gMapHOC = compose(
         markers,
         {
           minZoom,
-          maxZoom,
-          radius: clusterRadius
+          maxZoom: maxZoom - 2,
+          radius: clusterRadius,
+          // extent: 256
         }
       ),
     })
@@ -211,7 +194,7 @@ export const gMapHOC = compose(
     ['selectedFromWellList'],
     ({ setSelectedWellItem, selectedFromWellList, mapProps, setMapProps }) => {
       setSelectedWellItem(selectedFromWellList);
-      setMapProps({ ...mapProps, center: selectedFromWellList, zoom: 15 });
+      setMapProps({ ...mapProps, center: selectedFromWellList, zoom: 14 });
     }
   ),
   // get clusters specific for current bounds and zoom

@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-// import GoogleMap from 'google-map-react';
+import GoogleMap from 'google-map-react';
 import Grid from '@material-ui/core/Grid';
 import * as _ from 'lodash';
 import ReactTable from 'react-table';
@@ -73,7 +73,10 @@ class DashboardContainer extends Component {
             docsList: [],
             countyOptions: [],
             selectedTableRow: false,
-            selectedFromWellList: {}
+            selectedFromWellList: {},
+            mapInitialized: false,
+            pageNum: 0,
+            selectedMarkerId: undefined
         };
 
         props.actions.fetchAll(WELLS);
@@ -149,9 +152,20 @@ class DashboardContainer extends Component {
     }
 
     onMapMarkerClickHandler = (markerId) => {
+        this.calcWellsPageNum(markerId);
         this.props.actions.fetchAll(DOCS, { wells: [ markerId ] });
     }
-    
+
+    calcWellsPageNum = (markerId) => {
+        const wellList = this.props.wells.map(well => well.ID);
+        const pageNum = Math.floor(wellList.indexOf(markerId) / 20);
+        this.setState({ pageNum, selectedMarkerId: markerId, selectedTableRow: wellList.indexOf(markerId) });
+    }
+
+    onPageChange = (pageNum) => {
+        this.setState({ pageNum });
+    }
+
     render() {
         const { documentDetails, filters, countyOptions, selectedFromWellList } = this.state;
         const markersData = this.getMarkersData();
@@ -168,7 +182,7 @@ class DashboardContainer extends Component {
             { value: undefined, label: '' },
             { value: 'Indian', label: 'Indian' },
             { value: 'Cimarron', label: 'Cimarron' }
-        ]
+        ];
 
         return (
             <div className="homepage-container">
@@ -253,9 +267,31 @@ class DashboardContainer extends Component {
                                 }
                             ]}
                             defaultPageSize={20}
+                            pageSizeOptions={[20]}
+                            page={this.state.pageNum}
+                            onPageChange={this.onPageChange}
                             className="-striped -highlight"
                             getTrProps={(state, rowInfo) => {
                                 if (rowInfo && rowInfo.row) {
+                                    if (rowInfo.index === this.state.selectedTableRow) {
+                                        return {
+                                            onClick: () => {
+                                                this.setState({
+                                                    selectedTableRow: rowInfo.index,
+                                                    selectedFromWellList: {
+                                                        lat: parseFloat(rowInfo.original.Lat, 10),
+                                                        lng: parseFloat(rowInfo.original.Long, 10)
+                                                    }
+                                                });
+                                                this.props.actions.fetchAll(DOCS, { wells: [rowInfo.original.ID] });
+                                            },
+                                            style: {
+                                                background: '#00afec',
+                                                color: 'white',
+                                                cursor: 'pointer'
+                                            }
+                                        };
+                                    }
                                     return {
                                         onClick: () => {
                                             this.setState({

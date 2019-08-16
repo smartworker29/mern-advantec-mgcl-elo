@@ -9,29 +9,70 @@ import { Motion, spring } from 'react-motion';
 export const clusterMarker = ({
   styles, numPoints,
   defaultMotionStyle, motionStyle,
-}) => (
-  <Motion
-    defaultStyle={defaultMotionStyle}
-    style={motionStyle}
-  >
-  {
-    ({ scale }) => (
-      <div
-        style={{
-          ...styles.marker,
-          transform: `translate3D(0,0,0) scale(${scale}, ${scale})`
-        }}
-      >
-        <div
-          style={styles.text}
-        >
-          {numPoints}
-        </div>
-      </div>
-    )
+}) => {
+  let width = 30;
+  let borderColor = '';
+  switch (true) {
+    case numPoints > 200 && numPoints < 500:
+      width = 35;
+      borderColor = '#209644';
+      break;
+    case numPoints > 500 && numPoints < 800:
+      width = 40;
+      borderColor = '#2ee018';
+      break;
+    case numPoints > 800 && numPoints < 1000:
+      width = 45;
+      borderColor = '#93e018';
+      break;
+    case numPoints > 1000 && numPoints < 1500:
+      width = 50;
+      borderColor = '#dde018';
+      break;
+    case numPoints > 1500 && numPoints < 2000:
+      width = 55;
+      borderColor = '#e0b518';
+      break;
+    case numPoints > 2000 && numPoints < 3000:
+      width = 60;
+      borderColor = '#f18908';
+      break;
+    case numPoints > 3000:
+        width = 70;
+        borderColor = '#ad08f1';
+        break;
+    default:
+      width = 30;
+      borderColor = '#004336';
   }
-  </Motion>
-);
+
+  return (
+    <Motion
+      defaultStyle={defaultMotionStyle}
+      style={motionStyle}
+    >
+    {
+      ({ scale }) => (
+        <div
+          style={{
+            ...styles.marker,
+            width: width,
+            height: width,
+            borderColor: borderColor,
+            transform: `translate3D(0,0,0) scale(${scale}, ${scale})`
+          }}
+        >
+          <div
+            style={styles.text}
+          >
+            {numPoints}
+          </div>
+        </div>
+      )
+    }
+    </Motion>
+  );
+};
 
 clusterMarker.propTypes = {
   styles: PropTypes.object,
@@ -47,11 +88,10 @@ export const clusterMarkerHOC = compose(
       marker: {
         position: 'absolute',
         cursor: 'pointer',
-        width: 30,
-        height: 30,
         left: -15,
         top: -15,
-        border: '5px solid #004336',
+        borderWidth: 2,
+        borderStyle: 'solid',
         borderRadius: '50%',
         backgroundColor: 'white',
         textAlign: 'center',
