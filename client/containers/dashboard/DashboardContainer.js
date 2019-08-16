@@ -1,7 +1,6 @@
 /* eslint-disable camelcase */
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import GoogleMap from 'google-map-react';
 import Grid from '@material-ui/core/Grid';
 import * as _ from 'lodash';
 import ReactTable from 'react-table';
@@ -76,7 +75,8 @@ class DashboardContainer extends Component {
             selectedFromWellList: {},
             mapInitialized: false,
             pageNum: 0,
-            selectedMarkerId: undefined
+            selectedMarkerId: undefined,
+            filterChanged: false
         };
 
         props.actions.fetchAll(WELLS);
@@ -88,16 +88,28 @@ class DashboardContainer extends Component {
         this.setState({ countyOptions });
     }
 
-    UNSAFE_componentWillReceiveProps(newProps) {
+    UNSAFE_componentWillUpdate(newProps, newState) {
         if (this.props.wells && (newProps.wells.length !== this.props.wells.length)) {
-            if (_.some(this.state.filters, (value) => value !== undefined)) {
-                let query = {};
-                const wellList = _.compact(newProps.wells.map(well => well.ID));
-                this.props.actions.fetchAll(DOCS, { wells: wellList.length > 0 ? wellList : [-1] });
-            } else {
-                this.props.actions.fetchAll(DOCS);
+            this.listDocs(newProps, newState);
+        } else {
+            if (newState.filterChanged) {
+                this.listDocs(newProps, newState);
             }
         }
+    }
+
+    listDocs(newProps, newState) {
+        if (_.some(newState.filters, (value) => value !== undefined)) {
+            const wellList = _.compact(newProps.wells.map(well => well.ID));
+            if (wellList.length > 1) {
+                newProps.actions.fetchAll(DOCS, { ...newState.filters });
+            } else {
+                newProps.actions.fetchAll(DOCS, { wells: wellList.length > 0 ? wellList : [-1] });
+            }
+        } else {
+            newProps.actions.fetchAll(DOCS);
+        }
+        this.setState({ filterChanged: false });
     }
 
     onStateChange = (e) => {
@@ -106,20 +118,20 @@ class DashboardContainer extends Component {
         filters['state'] = selectedState;
         filters['county'] = undefined;
         const countyOptions = counties[selectedState] || [];
-        this.setState({ selectedState, countyOptions, filters });
+        this.setState({ selectedState, countyOptions, filters, filterChanged: true });
         this.listWells();
     }
 
     onChangeValue = (e) => {
         const { filters } = this.state;
         filters[e.target.name] = e.target.value;
-        this.setState({ filters });
+        this.setState({ filters, filterChanged: true  });
     }
 
     onFilterChange = (e, prop) => {
         const { filters } = this.state;
         filters[prop] = e.target ? e.target.value : e.value;
-        this.setState({ filters });
+        this.setState({ filters, filterChanged: true  });
         this.listWells();
     }
 
@@ -133,9 +145,10 @@ class DashboardContainer extends Component {
                 township: undefined,
                 range: undefined,
                 keyword: undefined
-            }
+            },
+            filterChanged: true 
         });
-        this.listWells();
+        this.props.actions.fetchAll(WELLS);
     }
 
     listWells = () => {

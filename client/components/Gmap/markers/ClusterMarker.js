@@ -29,18 +29,10 @@ export const clusterMarker = ({
       width = 50;
       borderColor = '#dde018';
       break;
-    case numPoints > 1500 && numPoints < 2000:
+    case numPoints > 1500:
       width = 55;
       borderColor = '#e0b518';
       break;
-    case numPoints > 2000 && numPoints < 3000:
-      width = 60;
-      borderColor = '#f18908';
-      break;
-    case numPoints > 3000:
-        width = 70;
-        borderColor = '#ad08f1';
-        break;
     default:
       width = 30;
       borderColor = '#004336';
