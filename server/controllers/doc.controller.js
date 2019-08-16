@@ -65,7 +65,7 @@ export function findAll(req, res) {
     } else if (options.wells.length === 0) {
         Doc.forge()
             .query(function(qb) {
-                qb.offset(0).limit(5000);
+                qb.offset(0).limit(15000);
             })
             .fetchAll()
             .then(docs => res.json({

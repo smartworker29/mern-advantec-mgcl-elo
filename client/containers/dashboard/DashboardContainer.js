@@ -118,20 +118,20 @@ class DashboardContainer extends Component {
         filters['state'] = selectedState;
         filters['county'] = undefined;
         const countyOptions = counties[selectedState] || [];
-        this.setState({ selectedState, countyOptions, filters, filterChanged: true });
+        this.setState({ selectedState, countyOptions, filters, filterChanged: true, pageNum: 0 });
         this.listWells();
     }
 
     onChangeValue = (e) => {
         const { filters } = this.state;
         filters[e.target.name] = e.target.value;
-        this.setState({ filters, filterChanged: true  });
+        this.setState({ filters, filterChanged: true, pageNum: 0 });
     }
 
     onFilterChange = (e, prop) => {
         const { filters } = this.state;
         filters[prop] = e.target ? e.target.value : e.value;
-        this.setState({ filters, filterChanged: true  });
+        this.setState({ filters, filterChanged: true, pageNum: 0 });
         this.listWells();
     }
 
