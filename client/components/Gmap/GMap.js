@@ -11,6 +11,7 @@ import ClusterMarker from './markers/ClusterMarker';
 import SimpleMarker from './markers/SimpleMarker';
 import supercluster from 'points-cluster';
 import geoJSON from './geojson.json';
+import blmTownshipJSON from './blm_twnshp.json';
 
 
 function CenterControl(controlDiv, map) {
@@ -22,8 +23,7 @@ function CenterControl(controlDiv, map) {
   controlUI.style.borderRadius = '3px';
   controlUI.style.boxShadow = '0 2px 6px rgba(0,0,0,.3)';
   controlUI.style.cursor = 'pointer';
-  controlUI.style.marginBottom = '22px';
-  controlUI.style.marginTop = '10px';
+  controlUI.style.margin = '10px 5px 22px';
   controlUI.style.textAlign = 'center';
   controlUI.title = 'Click to recenter the map';
   controlDiv.appendChild(controlUI);
@@ -41,25 +41,106 @@ function CenterControl(controlDiv, map) {
 
   // Setup the click event listeners: simply set the map to Chicago.
   controlUI.addEventListener('click', function() {
-    const style = map.data.getStyle();
-    map.data.setStyle({
-      ...style,
-      visible: !style.visible,
-    });
+    countiesVisible = !countiesVisible;
+    if (countiesVisible) {
+      featuresCounties.map(item => {
+        item.setProperty('visible', true);
+        map.data.overrideStyle(item, {
+          visible: true
+        });
+      });
+    } else {
+      featuresCounties.map(item => {
+        item.setProperty('visible', false);
+        map.data.overrideStyle(item, {
+          visible: false
+        });
+      });
+    }
   });
 }
 
+
+function strController(controlDiv, map) {
+  // Set CSS for the control border.
+  var controlUI = document.createElement('div');
+  controlUI.style.backgroundColor = '#fff';
+  controlUI.style.border = '2px solid #fff';
+  controlUI.style.borderRadius = '3px';
+  controlUI.style.boxShadow = '0 2px 6px rgba(0,0,0,.3)';
+  controlUI.style.cursor = 'pointer';
+  controlUI.style.margin = '10px 5px 22px';
+  controlUI.style.textAlign = 'center';
+  controlUI.title = 'Click to recenter the map';
+  controlDiv.appendChild(controlUI);
+
+  // Set CSS for the control interior.
+  var controlText = document.createElement('div');
+  controlText.style.color = 'rgb(25,25,25)';
+  controlText.style.fontFamily = 'Roboto,Arial,sans-serif';
+  controlText.style.fontSize = '16px';
+  controlText.style.lineHeight = '38px';
+  controlText.style.paddingLeft = '15px';
+  controlText.style.paddingRight = '15px';
+  controlText.innerHTML = 'STR';
+  controlUI.appendChild(controlText);
+
+  // Setup the click event listeners: simply set the map to Chicago.
+  controlUI.addEventListener('click', function() {
+    strVisible = !strVisible;
+    if (strVisible) {
+      featuresSTR.map(item => {
+        item.setProperty('visible', true);
+        map.data.overrideStyle(item, {
+          visible: true,
+          fillColor: 'red',
+          strokeColor: 'orange'
+        });
+      });
+    } else {
+      featuresSTR.map(item => {
+        item.setProperty('visible', false);
+        map.data.overrideStyle(item, {
+          visible: false
+        });
+      });
+    }
+  });
+}
+
+let featuresSTR = [];
+let featuresCounties = [];
+let strVisible = false;
+let countiesVisible = false;
+
 const apiIsLoaded = (map, maps) => {
-  map.data.addGeoJson(geoJSON);
+  featuresCounties = map.data.addGeoJson(geoJSON);
+  featuresSTR = map.data.addGeoJson(blmTownshipJSON);
+  featuresCounties.map(item => {
+    item.setProperty('visible', false);
+    map.data.overrideStyle(item, {
+      visible: false
+    });
+  });
+  featuresSTR.map(item => {
+    item.setProperty('visible', false);
+    map.data.overrideStyle(item, {
+      visible: false
+    });
+  });
   map.data.setStyle({
     strokeWeight: 1,
     strokeColor: 'green',
-    visible: false,
+    visible: true
   });
-  const centerControlDiv = document.createElement('div');
-  const centerControl = new CenterControl(centerControlDiv, map);
-  centerControlDiv.index = 1;
-  map.controls[maps.ControlPosition.TOP_CENTER].push(centerControlDiv);
+  const centerControlDiv1 = document.createElement('div');
+  new CenterControl(centerControlDiv1, map);
+  centerControlDiv1.index = 1;
+  const centerControlDiv2 = document.createElement('div');
+  new strController(centerControlDiv2, map);
+  centerControlDiv2.index = 1;
+  map.controls[maps.ControlPosition.TOP_CENTER].push(centerControlDiv1);
+  map.controls[maps.ControlPosition.TOP_CENTER].push(centerControlDiv2);
 };
 
 export const gMap = ({
