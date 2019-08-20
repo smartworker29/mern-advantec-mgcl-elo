@@ -60,7 +60,7 @@ class DashboardContainer extends Component {
         this.state = {
             documentDetails: '',
             filters: {
-                state: undefined,
+                state: 'OK',
                 county: undefined,
                 meridian: undefined,
                 section: undefined,
@@ -68,7 +68,7 @@ class DashboardContainer extends Component {
                 range: undefined,
                 keyword: undefined
             },
-            selectedState: undefined,
+            selectedState: 'OK',
             docsList: [],
             countyOptions: [],
             selectedTableRow: false,
@@ -79,8 +79,7 @@ class DashboardContainer extends Component {
             filterChanged: false
         };
 
-        props.actions.fetchAll(WELLS);
-        props.actions.fetchAll(DOCS);
+        this.listWells();
     }
 
     componentDidMount() {
@@ -138,7 +137,7 @@ class DashboardContainer extends Component {
     resetFilter = () => {
         this.setState({
             filters: {
-                state: undefined,
+                state: 'OK',
                 county: undefined,
                 meridian: undefined,
                 section: undefined,
@@ -265,7 +264,7 @@ class DashboardContainer extends Component {
                                         },
                                         {
                                             Header: 'SPOT',
-                                            accessor: 'Lease'
+                                            accessor: 'SPOT'
                                         },
                                         {
                                             Header: 'ID',
@@ -274,7 +273,7 @@ class DashboardContainer extends Component {
                                         {
                                             Header: 'Location',
                                             id: 'location',
-                                            accessor: d => `${d.Section}-${d.Township}-${d.Range}`
+                                            accessor: 'Location'
                                         }
                                     ]
                                 }

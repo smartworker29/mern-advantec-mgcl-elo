@@ -14,21 +14,6 @@
     "migrate:rollback": "knex migrate:rollback",
     "lint": "eslint client server; exit 0"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Bikranshu/express-react-boilerplate.git"
-  },
-  "keywords": [
-    "node",
-    "es6",
-    "express",
-    "react",
-    "redux",
-    "react-router",
-    "webpack",
-    "boilerplate"
-  ],
-  "author": "Krishna Timilsina <bikranshu.t@gmail.com>",
   "license": "MIT",
   "dependencies": {
     "@material-ui/core": "^3.9.3",
