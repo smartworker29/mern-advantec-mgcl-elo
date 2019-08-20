@@ -265,15 +265,15 @@ class DashboardContainer extends Component {
                                         },
                                         {
                                             Header: 'SPOT',
-                                            accessor: 'Lease'
+                                            accessor: 'Spot'
                                         },
                                         {
                                             Header: 'ID',
-                                            accessor: 'Range'
+                                            accessor: 'ID'
                                         },
                                         {
                                             Header: 'Location',
-                                            accessor: 'Township'
+                                            accessor: 'Location'
                                         }
                                     ]
                                 }
