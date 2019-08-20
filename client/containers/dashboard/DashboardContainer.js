@@ -83,7 +83,7 @@ class DashboardContainer extends Component {
     }
 
     componentDidMount() {
-        const countyOptions = _.flatMap(counties);
+        const countyOptions = counties[this.state.filters.state];
         this.setState({ countyOptions });
     }
 
@@ -125,6 +125,7 @@ class DashboardContainer extends Component {
         const { filters } = this.state;
         filters[e.target.name] = e.target.value;
         this.setState({ filters, filterChanged: true, pageNum: 0 });
+        this.listWells();
     }
 
     onFilterChange = (e, prop) => {
@@ -239,13 +240,13 @@ class DashboardContainer extends Component {
                                 />
                             </Grid>
                             <Grid item xs={6}><span>Section</span></Grid>
-                            <Grid item xs={6}><input name="section" value={filters.section || ''} onChange={this.onChangeValue} onBlur={(e) => this.onFilterChange(e, 'section')} /></Grid>
+                            <Grid item xs={6}><input name="section" value={filters.section || ''} onChange={this.onChangeValue} /></Grid>
                             <Grid item xs={6}><span>Township</span></Grid>
-                            <Grid item xs={6}><input name="township" value={filters.township || ''} onChange={this.onChangeValue} onBlur={(e) => this.onFilterChange(e, 'township')} /></Grid>
+                            <Grid item xs={6}><input name="township" value={filters.township || ''} onChange={this.onChangeValue} /></Grid>
                             <Grid item xs={6}><span>Range</span></Grid>
-                            <Grid item xs={6}><input name="range" value={filters.range || ''} onChange={this.onChangeValue} onBlur={(e) => this.onFilterChange(e, 'range')} /></Grid>
+                            <Grid item xs={6}><input name="range" value={filters.range || ''} onChange={this.onChangeValue} /></Grid>
                             <Grid item xs={6}><span style={{ margin: '5px 0' }}>Keyword</span></Grid>
-                            <Grid item xs={12}><input name="keyword" className="keyword" onChange={this.onChangeValue} onBlur={(e) => this.onFilterChange(e, 'keyword')} /></Grid>
+                            <Grid item xs={12}><input name="keyword" className="keyword" onChange={this.onChangeValue} /></Grid>
                         </Grid>
                         <ReactTable
                             data={this.props.wells}
