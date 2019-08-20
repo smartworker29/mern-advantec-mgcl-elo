@@ -148,7 +148,7 @@ class DashboardContainer extends Component {
             },
             filterChanged: true 
         });
-        this.props.actions.fetchAll(WELLS);
+        this.listWells();
     }
 
     listWells = () => {
@@ -246,7 +246,7 @@ class DashboardContainer extends Component {
                             <Grid item xs={6}><span>Range</span></Grid>
                             <Grid item xs={6}><input name="range" value={filters.range || ''} onChange={this.onChangeValue} /></Grid>
                             <Grid item xs={6}><span style={{ margin: '5px 0' }}>Keyword</span></Grid>
-                            <Grid item xs={12}><input name="keyword" className="keyword" onChange={this.onChangeValue} /></Grid>
+                            <Grid item xs={12}><input name="keyword" className="keyword" value={filters.keyword || ''}  onChange={this.onChangeValue} /></Grid>
                         </Grid>
                         <ReactTable
                             data={this.props.wells}
@@ -265,16 +265,15 @@ class DashboardContainer extends Component {
                                         },
                                         {
                                             Header: 'SPOT',
-                                            accessor: 'SPOT'
+                                            accessor: 'Lease'
                                         },
                                         {
                                             Header: 'ID',
-                                            accessor: 'ID'
+                                            accessor: 'Range'
                                         },
                                         {
                                             Header: 'Location',
-                                            id: 'location',
-                                            accessor: 'Location'
+                                            accessor: 'Township'
                                         }
                                     ]
                                 }

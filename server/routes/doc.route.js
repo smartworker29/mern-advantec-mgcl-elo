@@ -113,6 +113,11 @@ router.route('/')
  *         description: "Query for Products with same range"
  *         type: "string"
  *         default: ""
+ *       - name: "keyword"
+ *         in: "query"
+ *         description: "Query for Products with same keyword"
+ *         type: "string"
+ *         default: ""
  *     responses:
  *       200:
  *         description: OK
