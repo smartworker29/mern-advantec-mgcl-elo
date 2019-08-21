@@ -93,8 +93,7 @@ function strController(controlDiv, map) {
         item.setProperty('visible', true);
         map.data.overrideStyle(item, {
           visible: true,
-          fillColor: 'red',
-          strokeColor: 'orange'
+          strokeColor: 'red'
         });
       });
     } else {
