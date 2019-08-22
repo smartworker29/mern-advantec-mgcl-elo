@@ -11,8 +11,7 @@ import ClusterMarker from './markers/ClusterMarker';
 import SimpleMarker from './markers/SimpleMarker';
 import supercluster from 'points-cluster';
 import geoJSON from './geojson.json';
-import blmTownshipJSON from './blm_twnshp.json';
-
+import blmTownshipJSON from './doq.json';
 
 function CenterControl(controlDiv, map) {
 
@@ -93,9 +92,15 @@ function strController(controlDiv, map) {
         item.setProperty('visible', true);
         map.data.overrideStyle(item, {
           visible: true,
-          strokeColor: 'red'
+          fillOpacity: 0.01,
+          strokeColor: 'blue'
         });
       });
+      if (map.getZoom() >= 12) {
+        markers.map(marker => {
+          marker.setMap(map);
+        })
+      }
     } else {
       featuresSTR.map(item => {
         item.setProperty('visible', false);
@@ -103,6 +108,9 @@ function strController(controlDiv, map) {
           visible: false
         });
       });
+      markers.map(marker => {
+        marker.setMap(null);
+      })
     }
   });
 }
@@ -111,6 +119,7 @@ let featuresSTR = [];
 let featuresCounties = [];
 let strVisible = false;
 let countiesVisible = false;
+let markers = [];
 
 const apiIsLoaded = (map, maps) => {
   featuresCounties = map.data.addGeoJson(geoJSON);
@@ -121,16 +130,44 @@ const apiIsLoaded = (map, maps) => {
       visible: false
     });
   });
-  featuresSTR.map(item => {
+  featuresSTR.map((item) => {
     item.setProperty('visible', false);
     map.data.overrideStyle(item, {
-      visible: false
+      visible: false,
     });
+    const latlng = new maps.LatLng(parseFloat(item.getProperty('centery'), 10), parseFloat(item.getProperty('centerx'), 10));
+    markers.push(new maps.Marker({
+      position: latlng,
+      label: {
+        color: '#222',
+        fontWeight: '500',
+        text: item.getProperty('usgs_qd_id')
+      },
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 0
+      }
+    }));
   });
-  map.data.setStyle({
-    strokeWeight: 1,
-    strokeColor: 'green',
-    visible: true
+  map.data.setStyle(function(feature) {
+    return {
+      strokeWeight: 1,
+      strokeColor: 'green',
+      visible: true,
+    }
+  });
+  map.addListener('bounds_changed', function() {
+    const zoom = map.getZoom();
+    if (zoom >= 12 && strVisible) {
+      markers.map(marker => {
+        marker.setMap(map);
+      })
+    } else {
+      markers.map(marker => {
+        marker.setMap(null);
+      })
+    }
+ 
   });
   const centerControlDiv1 = document.createElement('div');
   new CenterControl(centerControlDiv1, map);
