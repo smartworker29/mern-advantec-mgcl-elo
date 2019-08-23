@@ -12,6 +12,7 @@ import SimpleMarker from './markers/SimpleMarker';
 import supercluster from 'points-cluster';
 import geoJSON from './geojson.json';
 import blmTownshipJSON from './doq.json';
+import * as MarkerClusterer from '@google/markerclusterer';
 
 function CenterControl(controlDiv, map) {
 
@@ -97,9 +98,11 @@ function strController(controlDiv, map) {
         });
       });
       if (map.getZoom() >= 12) {
-        markers.map(marker => {
+        strMarkers.map(marker => {
           marker.setMap(map);
-        })
+        });
+        markerCluster.addMarkers(strMarkers);
+        haveClusters = true;
       }
     } else {
       featuresSTR.map(item => {
@@ -108,9 +111,11 @@ function strController(controlDiv, map) {
           visible: false
         });
       });
-      markers.map(marker => {
+      strMarkers.map(marker => {
         marker.setMap(null);
-      })
+      });
+      markerCluster.clearMarkers();
+      haveClusters = false;
     }
   });
 }
@@ -119,7 +124,9 @@ let featuresSTR = [];
 let featuresCounties = [];
 let strVisible = false;
 let countiesVisible = false;
-let markers = [];
+let strMarkers = [];
+let markerCluster = undefined;
+let haveClusters = false;
 
 const apiIsLoaded = (map, maps) => {
   featuresCounties = map.data.addGeoJson(geoJSON);
@@ -136,7 +143,7 @@ const apiIsLoaded = (map, maps) => {
       visible: false,
     });
     const latlng = new maps.LatLng(parseFloat(item.getProperty('centery'), 10), parseFloat(item.getProperty('centerx'), 10));
-    markers.push(new maps.Marker({
+    strMarkers.push(new maps.Marker({
       position: latlng,
       label: {
         color: '#222',
@@ -144,30 +151,41 @@ const apiIsLoaded = (map, maps) => {
         text: item.getProperty('usgs_qd_id')
       },
       icon: {
-        path: google.maps.SymbolPath.CIRCLE,
+        path: maps.SymbolPath.CIRCLE,
         scale: 0
       }
     }));
   });
-  map.data.setStyle(function(feature) {
-    return {
-      strokeWeight: 1,
-      strokeColor: 'green',
-      visible: true,
-    }
+  markerCluster = new MarkerClusterer(map, strMarkers,
+    {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
+  map.data.setStyle({
+    strokeWeight: 1,
+    strokeColor: 'green',
+    visible: true
   });
-  map.addListener('bounds_changed', function() {
+  strMarkers.map(marker => {
+    marker.setMap(null);
+  });
+  markerCluster.clearMarkers();
+  map.addListener('zoom_changed', function() {
     const zoom = map.getZoom();
     if (zoom >= 12 && strVisible) {
-      markers.map(marker => {
-        marker.setMap(map);
-      })
+      if (!haveClusters) {
+        strMarkers.map(marker => {
+          marker.setMap(map);
+        });
+        markerCluster.addMarkers(strMarkers);
+        haveClusters = true;
+      }
     } else {
-      markers.map(marker => {
-        marker.setMap(null);
-      })
+      if (haveClusters) {
+        strMarkers.map(marker => {
+          marker.setMap(null);
+        });
+        markerCluster.clearMarkers();
+        haveClusters = false;
+      }
     }
- 
   });
   const centerControlDiv1 = document.createElement('div');
   new CenterControl(centerControlDiv1, map);
@@ -241,7 +259,7 @@ export const gMapHOC = compose(
       minZoom: 3,
       maxZoom: 15,
       mapTypeControl: true,
-      animatedZoom: true
+      animatedZoom: false
     },
     onClickHandler: () => {}
   }),
