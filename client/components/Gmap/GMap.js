@@ -97,13 +97,12 @@ function strController(controlDiv, map) {
           strokeColor: 'blue'
         });
       });
-      if (map.getZoom() >= 12) {
-        strMarkers.map(marker => {
-          marker.setMap(map);
+      strMarkers.map(marker => {
+        marker.setLabel({
+          ...marker.getLabel(),
+          fontSize: '16px'
         });
-        markerCluster.addMarkers(strMarkers);
-        haveClusters = true;
-      }
+      });
     } else {
       featuresSTR.map(item => {
         item.setProperty('visible', false);
@@ -112,10 +111,11 @@ function strController(controlDiv, map) {
         });
       });
       strMarkers.map(marker => {
-        marker.setMap(null);
+        marker.setLabel({
+          ...marker.getLabel(),
+          fontSize: '0px'
+        });
       });
-      markerCluster.clearMarkers();
-      haveClusters = false;
     }
   });
 }
@@ -125,8 +125,6 @@ let featuresCounties = [];
 let strVisible = false;
 let countiesVisible = false;
 let strMarkers = [];
-let markerCluster = undefined;
-let haveClusters = false;
 
 const apiIsLoaded = (map, maps) => {
   featuresCounties = map.data.addGeoJson(geoJSON);
@@ -148,6 +146,7 @@ const apiIsLoaded = (map, maps) => {
       label: {
         color: '#222',
         fontWeight: '500',
+        fontSize: '0px',
         text: item.getProperty('usgs_qd_id')
       },
       icon: {
@@ -156,36 +155,42 @@ const apiIsLoaded = (map, maps) => {
       }
     }));
   });
-  markerCluster = new MarkerClusterer(map, strMarkers,
-    {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
+
+  const mcOptions = {
+    maxZoom: 12,
+    styles: [{
+        height: 0,
+        textSize: 0,
+        textColor: 'rgba(0, 0, 0, 0)',
+        width: 0
+      }, {
+        height: 0,
+        textSize: 0,
+        textColor: 'rgba(0, 0, 0, 0)',
+        width: 0
+      }, {
+        height: 0,
+        textSize: 0,
+        textColor: 'rgba(0, 0, 0, 0)',
+        width: 0
+      }, {
+        height: 0,
+        textSize: 0,
+        textColor: 'rgba(0, 0, 0, 0)',
+        width: 0
+      }, {
+        height: 0,
+        textSize: 0,
+        textColor: 'rgba(0, 0, 0, 0)',
+        width: 0
+    }]
+  };
+
+  new MarkerClusterer(map, strMarkers, mcOptions);
   map.data.setStyle({
     strokeWeight: 1,
     strokeColor: 'green',
     visible: true
-  });
-  strMarkers.map(marker => {
-    marker.setMap(null);
-  });
-  markerCluster.clearMarkers();
-  map.addListener('zoom_changed', function() {
-    const zoom = map.getZoom();
-    if (zoom >= 12 && strVisible) {
-      if (!haveClusters) {
-        strMarkers.map(marker => {
-          marker.setMap(map);
-        });
-        markerCluster.addMarkers(strMarkers);
-        haveClusters = true;
-      }
-    } else {
-      if (haveClusters) {
-        strMarkers.map(marker => {
-          marker.setMap(null);
-        });
-        markerCluster.clearMarkers();
-        haveClusters = false;
-      }
-    }
   });
   const centerControlDiv1 = document.createElement('div');
   new CenterControl(centerControlDiv1, map);
