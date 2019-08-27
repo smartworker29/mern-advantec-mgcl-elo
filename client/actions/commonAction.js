@@ -5,8 +5,8 @@ import {
     ENTITY_FETCH,
     ENTITY_DELETE,
     SELECT_ENTITY_ITEM,
-    CLEAR_ENTITY_LIST
-
+    CLEAR_ENTITY_LIST,
+    ENTITY_FETCH_START
 } from '../constants/actionType';
 
 export const failure = (error) => {
@@ -37,6 +37,13 @@ export const fetch = (entity, data) => {
         type: ENTITY_FETCH,
         entity: entity,
         data: data
+    };
+};
+
+export const startFetch = (entity) => {
+    return {
+        type: ENTITY_FETCH_START,
+        entity: entity
     };
 };
 

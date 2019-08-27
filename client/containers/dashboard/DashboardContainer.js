@@ -76,7 +76,9 @@ class DashboardContainer extends Component {
             mapInitialized: false,
             pageNum: 0,
             selectedMarkerId: undefined,
-            filterChanged: false
+            filterChanged: false,
+            filterMapClicked: true,
+            markersData: []
         };
 
         this.listWells();
@@ -87,7 +89,7 @@ class DashboardContainer extends Component {
         this.setState({ countyOptions });
     }
 
-    UNSAFE_componentWillUpdate(newProps, newState) {
+   UNSAFE_componentWillUpdate(newProps, newState) {
         if (this.props.wells && (newProps.wells.length !== this.props.wells.length)) {
             this.listDocs(newProps, newState);
         } else {
@@ -136,32 +138,42 @@ class DashboardContainer extends Component {
     }
 
     resetFilter = () => {
+        const filters = {
+            state: 'OK',
+            county: undefined,
+            meridian: undefined,
+            section: undefined,
+            township: undefined,
+            range: undefined,
+            keyword: undefined
+        };
         this.setState({
-            filters: {
-                state: 'OK',
-                county: undefined,
-                meridian: undefined,
-                section: undefined,
-                township: undefined,
-                range: undefined,
-                keyword: undefined
-            },
-            filterChanged: true 
+            filters,
+            filterChanged: true
         });
-        this.listWells();
+        this.listWells(filters);
     }
 
-    listWells = () => {
+    listWells = (value) => {
         const { filters } = this.state;
-        this.props.actions.fetchAll(WELLS, filters);
+        if (!value) {
+            value = filters;
+        }
+        console.log('------- list welss', value);
+        this.props.actions.fetchAll(WELLS, value);
     }
 
     getMarkersData = () => {
-        return this.props.wells.map(well => ({
+        const markersData = this.props.wells.map(well => ({
             id: well.ID,
             lat: parseFloat(well.Lat, 10),
             lng: parseFloat(well.Long, 10)
         }));
+        _.remove(markersData, function (e) {
+            return isNaN(e.lat) || isNaN(e.lng);
+        });
+        console.log('--------- get markers data');
+        this.setState({ markersData, filterMapClicked: false });
     }
 
     onMapMarkerClickHandler = (markerId) => {
@@ -179,12 +191,17 @@ class DashboardContainer extends Component {
         this.setState({ pageNum });
     }
 
+    filterMapClick = () => {
+        this.setState({ filterMapClicked: true });
+    }
+
     render() {
-        const { documentDetails, filters, countyOptions, selectedFromWellList } = this.state;
-        const markersData = this.getMarkersData();
-        _.remove(markersData, function (e) {
-            return isNaN(e.lat) || isNaN(e.lng);
-        });
+        const { documentDetails, filters, countyOptions, selectedFromWellList, filterMapClicked, markersData } = this.state;
+        const { loadingwells, loadingdocs } = this.props;
+        console.log('------markersData:', markersData, filterMapClicked, loadingwells,  loadingdocs);
+        if (!_.isUndefined(loadingwells) && (filterMapClicked && !loadingwells)) {
+            this.getMarkersData();
+        }
 
         const stateOpts = stateOptions.map(option => ({ value: option.abbreviation, label: option.abbreviation }));
         stateOpts.unshift({ value: undefined, label: ' ' });
@@ -246,7 +263,8 @@ class DashboardContainer extends Component {
                             <Grid item xs={6}><span>Range</span></Grid>
                             <Grid item xs={6}><input name="range" value={filters.range || ''} onChange={this.onChangeValue} /></Grid>
                             <Grid item xs={6}><span style={{ margin: '5px 0' }}>Keyword</span></Grid>
-                            <Grid item xs={12}><input name="keyword" className="keyword" value={filters.keyword || ''}  onChange={this.onChangeValue} /></Grid>
+                            <Grid item xs={8}><input name="keyword" className="keyword" value={filters.keyword || ''}  onChange={this.onChangeValue} /></Grid>
+                            <Grid item xs={4}><button className="filter-map" onClick={this.filterMapClick} disabled={this.loadingwells}>Filter Map</button></Grid>
                         </Grid>
                         <ReactTable
                             data={this.props.wells}
@@ -471,19 +489,25 @@ class DashboardContainer extends Component {
 DashboardContainer.propTypes = {
     actions: PropTypes.object,
     wells: PropTypes.array,
+    loadingwells: PropTypes.bool,
+    loadingdocs: PropTypes.bool,
     docs: PropTypes.array
 };
 
 DashboardContainer.defaultProps = {
     actions: {},
     wells: [],
-    docs: []
+    docs: [],
+    loadingwells: undefined,
+    loadingdocs: undefined
 };
 
 
 const mapStateToProps = state => ({
     wells: state.crud.wells,
-    docs: state.crud.docs
+    docs: state.crud.docs,
+    loadingwells: state.crud.loadingwells,
+    loadingdocs: state.crud.loadingdocs,
 });
 
 /**

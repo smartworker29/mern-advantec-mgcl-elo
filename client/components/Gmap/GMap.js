@@ -295,7 +295,7 @@ export const gMapHOC = compose(
     'mapProps',
     'setMapProps',
     props => ({
-      center: props.selectedFromWellList.lat ? props.selectedFromWellList : { lat: props.markersData[0] ? props.markersData[0].lat : 36.256251, lng: props.markersData[0] ? props.markersData[0].lng : -99.56321 },
+      center: props.selectedFromWellList.lat ? props.selectedFromWellList : { lat: props.markersData[0] ? props.markersData[0].lat : 35.462219, lng: props.markersData[0] ? props.markersData[0].lng : -97.499075 },
       zoom: 10
     })
   ),

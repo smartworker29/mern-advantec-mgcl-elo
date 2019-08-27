@@ -3,7 +3,8 @@ import {
     ENTITY_UPDATE,
     ENTITY_FETCH,
     SELECT_ENTITY_ITEM,
-    CLEAR_ENTITY_LIST
+    CLEAR_ENTITY_LIST,
+    ENTITY_FETCH_START
 } from '../constants/actionType';
 
 
@@ -13,7 +14,9 @@ let initialState = {
     selectedItem: {
         well: {},
         doc: {},
-    }
+    },
+    loadingwells: undefined,
+    loadingdocs: undefined
 };
 
 /**
@@ -33,12 +36,16 @@ export default function (state, action) {
 
         case ENTITY_FETCH:
             newState[action.entity] = action.data.data;
+            newState[`loading${action.entity}`] = false;
             return Object.assign({}, newState);
-
             
         case SELECT_ENTITY_ITEM:
             newState.selectedItem[action.entity] = Object.assign({}, state, action.data);
             return newState;
+
+        case ENTITY_FETCH_START:
+            newState[`loading${action.entity}`] = true;
+            return Object.assign({}, newState);
 
         case CLEAR_ENTITY_LIST:
             newState[action.entity] = {};

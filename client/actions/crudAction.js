@@ -21,6 +21,7 @@ import * as httpService from '../services/httpService';
 
 export const fetchAll = (entity, filters) => {
     return dispatch => {
+        dispatch(commonAction.startFetch(entity));
         return httpService.fetchEntity(entity, filters).then((response) => {
             dispatch(commonAction.fetch(entity, response.data));
         })

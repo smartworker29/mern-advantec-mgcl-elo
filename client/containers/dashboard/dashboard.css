@@ -154,3 +154,12 @@
 .loading-container img {
   width: 100px;
 }
+
+/* Filter Map Button */
+.filter-map {
+  margin-right: 10px;
+  width: calc(100% - 10px);
+  height: 29px;
+  margin-top: 5px;
+  font-weight: 500;
+}
