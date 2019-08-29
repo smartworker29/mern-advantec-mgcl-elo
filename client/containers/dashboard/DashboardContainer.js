@@ -159,7 +159,6 @@ class DashboardContainer extends Component {
         if (!value) {
             value = filters;
         }
-        console.log('------- list welss', value);
         this.props.actions.fetchAll(WELLS, value);
     }
 
@@ -172,7 +171,6 @@ class DashboardContainer extends Component {
         _.remove(markersData, function (e) {
             return isNaN(e.lat) || isNaN(e.lng);
         });
-        console.log('--------- get markers data');
         this.setState({ markersData, filterMapClicked: false });
     }
 
@@ -197,8 +195,7 @@ class DashboardContainer extends Component {
 
     render() {
         const { documentDetails, filters, countyOptions, selectedFromWellList, filterMapClicked, markersData } = this.state;
-        const { loadingwells, loadingdocs } = this.props;
-        console.log('------markersData:', markersData, filterMapClicked, loadingwells,  loadingdocs);
+        const { loadingwells } = this.props;
         if (!_.isUndefined(loadingwells) && (filterMapClicked && !loadingwells)) {
             this.getMarkersData();
         }
