@@ -358,6 +358,7 @@ class DashboardContainer extends Component {
                                 markersData={markersData}
                                 selectedFromWellList={selectedFromWellList}
                                 onClickHandler={this.onMapMarkerClickHandler}
+                                filters={filters}
                             />
                         </div>
                     </Grid>

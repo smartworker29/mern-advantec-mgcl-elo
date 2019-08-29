@@ -358,18 +358,26 @@ export const gMapHOC = compose(
   // set hovered
   withPropsOnChange(
     ['clusters', 'hoveredMarkerId'],
-    ({ clusters, hoveredMarkerId }) => ({
+    ({ clusters, hoveredMarkerId }) => {({
       clusters: clusters
         .map(cluster => ({
           ...cluster,
           hovered: cluster.id === hoveredMarkerId,
         })),
-    })
+    });}
   ),
   withPropsOnChange(
-    ['markersData'],
-    ({ setMarkers, markersData }) => {
+    ['markersData', 'filters'],
+    ({ setMarkers, markersData, setMapProps, mapProps, filters }) => {
       setMarkers(markersData);
+      let zoomLevel = 7;
+      if (filters.county) { zoomLevel = 9; }
+      if (filters.section) { zoomLevel = 9; }
+      if (filters.township) { zoomLevel = 10; }
+      if (filters.range) { zoomLevel = 10; }
+      if (filters.keyword) { zoomLevel = 10; }
+      const centerPos = { lat: markersData[0] ? markersData[0].lat : 35.462219, lng: markersData[0] ? markersData[0].lng : -97.499075 };
+      setMapProps({ ...mapProps, center: centerPos, zoom: zoomLevel });
     }
   ),
 );
